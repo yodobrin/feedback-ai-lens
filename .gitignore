@@ -1,0 +1,4 @@
+configuration/.env
+sample-data/export.csv
+sample-data/exportedstories.json
+.DS*
