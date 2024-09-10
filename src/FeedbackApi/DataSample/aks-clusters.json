@@ -1,0 +1,23 @@
+[
+    {
+      "ServiceName": "Azure Kubernetes Service (AKS)",
+      "ClusterName": "Cluster A",
+      "CommonElement": "Deployment issues",
+      "SimilarFeedbacks": 12,
+      "DistinctCustomers": 7
+    },
+    {
+      "ServiceName": "Azure Kubernetes Service (AKS)",
+      "ClusterName": "Cluster B",
+      "CommonElement": "Node scaling problems",
+      "SimilarFeedbacks": 9,
+      "DistinctCustomers": 5
+    },
+    {
+      "ServiceName": "Azure Kubernetes Service (AKS)",
+      "ClusterName": "Cluster C",
+      "CommonElement": "Networking configuration complexity",
+      "SimilarFeedbacks": 7,
+      "DistinctCustomers": 4
+    }
+  ]

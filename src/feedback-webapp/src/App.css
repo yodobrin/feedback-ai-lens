@@ -1,0 +1,79 @@
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin: 20px;
+}
+
+.card, .cluster-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover, .cluster-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+  width: 250px;
+}
+
+.cluster-card {
+  width: 350px;  /* Larger size for cluster cards */
+}
+
+.card h3, .cluster-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+}
+
+.card p, .cluster-card p {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+button {
+  margin: 20px;
+  padding: 10px 20px;
+  background-color: #4f83cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3b5b91;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 20px;
+}
+
+.theme-analyze, .issue-analyze {
+  margin-top: 20px;
+}
+
+.theme-analyze textarea, .issue-analyze textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.analysis-result, .issue-result {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #eef2ff;
+  border: 1px solid #4f83cc;
+  border-radius: 8px;
+}

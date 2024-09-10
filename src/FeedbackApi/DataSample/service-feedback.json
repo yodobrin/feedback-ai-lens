@@ -1,0 +1,26 @@
+[
+    {
+      "ServiceName": "CosmosDB",
+      "TotalFeedback": 15,
+      "DistinctCustomers": 8,
+      "FeatureRequests": 5,
+      "Bugs": 3,
+      "OverallSentiment": "Positive"
+    },
+    {
+      "ServiceName": "Azure Kubernetes Service (AKS)",
+      "TotalFeedback": 20,
+      "DistinctCustomers": 12,
+      "FeatureRequests": 6,
+      "Bugs": 7,
+      "OverallSentiment": "Neutral"
+    },
+    {
+      "ServiceName": "Azure Data Factory",
+      "TotalFeedback": 10,
+      "DistinctCustomers": 5,
+      "FeatureRequests": 3,
+      "Bugs": 1,
+      "OverallSentiment": "Positive"
+    }
+  ]
