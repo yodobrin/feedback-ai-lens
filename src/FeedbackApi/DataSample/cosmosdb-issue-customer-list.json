@@ -1,0 +1,16 @@
+{
+  "original_user_prompt": "looking for customer with billing issues",
+  "user_story": "As a customer, I want to improve query performance so that I can reduce processing time.",
+  "customers": [
+    {
+      "name": "Customer A",
+      "industry": "Finance",
+      "tpid": "1234"
+    },
+    {
+      "name": "Customer B",
+      "industry": "Healthcare",
+      "tpid": "5678"
+    }
+  ]
+}

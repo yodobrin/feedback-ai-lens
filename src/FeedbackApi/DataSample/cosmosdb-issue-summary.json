@@ -1,0 +1,10 @@
+{
+    "issue": "Slow query performance",
+    "similar_issues": 10,
+    "distinct_customers": 5,
+    "feedback_links": [
+      "https://feedbacklink1.com",
+      "https://feedbacklink2.com"
+    ],
+    "summary": "Customers reported slow query performance under high load. Optimization of query plans is recommended."
+  }

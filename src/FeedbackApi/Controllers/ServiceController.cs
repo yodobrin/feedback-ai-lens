@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 
+
 [ApiController]
 [Route("api/[controller]")]
 public class ServicesController : ControllerBase
@@ -55,5 +56,59 @@ public class ServicesController : ControllerBase
         var serviceClusters = JsonSerializer.Deserialize<List<ServiceCluster>>(jsonData);
 
         return Ok(serviceClusters);
+    }
+
+    [HttpGet("GetSummaryByIssue/{serviceName}")]
+    public IActionResult GetSummaryByIssue(string serviceName, [FromQuery] string userQuery)
+    {
+        string jsonFileName = $"{serviceName.ToLower()}-issue-summary.json";
+
+        // Construct the full path to the JSON file, using the same approach as other APIs
+        var jsonFilePath = $"{SampleBasePath}/{jsonFileName}";
+        Console.WriteLine($"path of summary: {jsonFilePath}");
+
+        // Check if the file exists
+        if (!System.IO.File.Exists(jsonFilePath))
+        {
+            return NotFound("The issue summary file was not found.");
+        }
+        
+        // Read the file and output raw JSON for debugging
+        var jsonData = System.IO.File.ReadAllText(jsonFilePath);
+            
+        var issueSummary = JsonSerializer.Deserialize<IssueSummary>(jsonData);
+
+
+        return Ok(issueSummary);
+    }
+
+    [HttpGet("GetCustomersByIssue/{serviceName}")]
+    public IActionResult GetCustomersByIssue(string serviceName, [FromQuery] string userQuery)
+    {
+        // Assuming there's a JSON file containing customer data for issues
+        string jsonFileName = $"{serviceName.ToLower()}-issue-customer-list.json";
+
+        // Construct the full path to the JSON file
+        var jsonFilePath = $"{SampleBasePath}/{jsonFileName}";
+        Console.WriteLine($"path of customers: {jsonFilePath}");
+        
+
+        // Check if the file exists
+        if (!System.IO.File.Exists(jsonFilePath))
+        {
+            return NotFound("The customer file was not found.");
+        }
+        // Read the file and output raw JSON for debugging
+        var jsonData = System.IO.File.ReadAllText(jsonFilePath);
+        
+        // Deserialize into a Dictionary where the key is the issue name
+    // Deserialize directly into IssueData
+        var issueData = JsonSerializer.Deserialize<IssueData>(jsonData);
+
+    // Update the OriginalUserPrompt with the user's query
+        issueData.OriginalUserPrompt = userQuery;
+
+        // Return the IssueData object as JSON
+        return Ok(issueData);
     }
 }
