@@ -1,5 +1,5 @@
-using System.Text.Json.Serialization;
-public class FeedbackRecord
+
+public class FeedbackRecord : IVector
 {
     [JsonPropertyName("Id")]
     public string Id { get; set; }
@@ -42,4 +42,32 @@ public class FeedbackRecord
 
     [JsonPropertyName("Embedding")]
     public float[] Embedding { get; set; } // Embedding for the user story as a float array
+
+    // Implement the GetVector method from IVector interface
+    public float[] GetVector()
+    {
+        return Embedding ?? throw new InvalidOperationException("Embedding vector is not set.");
+    }
+
+    // A method to get a safe version of the FeedbackRecord (similar to GetSafeVersion in FunctionCodePair)
+    public FeedbackRecord GetSafeVersion()
+    {
+        return new FeedbackRecord
+        {
+            Id = this.Id,
+            PartnerShortName = this.PartnerShortName,
+            ServiceName = this.ServiceName,
+            Type = this.Type,
+            Title = this.Title,
+            Blocking = this.Blocking,
+            Description = this.Description,
+            WorkaroundAvailable = this.WorkaroundAvailable,
+            Priority = this.Priority,
+            CustomerName = this.CustomerName,
+            CustomerTpid = this.CustomerTpid,
+            WorkaroundDescription = this.WorkaroundDescription,
+            UserStory = this.UserStory,
+            Embedding = null // We do not include the embedding in the safe version
+        };
+    }
 }

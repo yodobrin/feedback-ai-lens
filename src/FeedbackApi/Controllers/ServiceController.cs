@@ -6,6 +6,19 @@ using System.Reflection.Metadata;
 public class ServicesController : ControllerBase
 {
     const string SampleBasePath = "../FeedbackApi/DataSample";
+    private readonly VectorDbService _cosmosDbService;
+    private readonly VectorDbService _aksService;
+    private readonly VectorDbService _adfService;
+
+    public ServicesController(
+        VectorDbService cosmosDbService,
+        VectorDbService aksService,
+        VectorDbService adfService)
+    {
+        _cosmosDbService = cosmosDbService;
+        _aksService = aksService;
+        _adfService = adfService;
+    }
 
     [HttpGet("GetServiceHighlights")]
     public IActionResult GetServiceHighlights()
