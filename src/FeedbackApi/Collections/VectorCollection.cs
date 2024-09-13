@@ -107,4 +107,57 @@ public class VectorCollection
     {
         return FindBestMatch(query, vectorSelector, (a, b) => -VectorMath.EuclideanDistance(a, b));
     }
+    // list of results
+    /*
+    * This method is used to find the best matches for a given query vector.
+    * The strategy parameter is used to determine which comparison strategy to use.
+    * The vectorSelector parameter is used to select the vector to compare against the query vector.
+    * Results are sorted by similarity score and limited by maxResults and similarityThreshold.
+    */
+    private List<SearchResult> FindBestMatches(float[] query, Func<FeedbackRecord, float[]> vectorSelector, ComparisonStrategy strategy, int maxResults, float similarityThreshold)
+    {
+        long start = DateTime.Now.Ticks;
+
+        // List to store the matching results
+        List<(FeedbackRecord, float)> matches = new List<(FeedbackRecord, float)>();
+
+        // Evaluate similarity for each item in the collection
+        for (int i = 0; i < objects.Count; i++)
+        {
+            float similarityScore = strategy(vectorSelector(objects[i]), query);
+
+            // Only consider items that exceed the similarity threshold
+            if (similarityScore >= similarityThreshold)
+            {
+                matches.Add((objects[i], similarityScore));
+            }
+        }
+
+        // Sort by similarity score in descending order
+        matches.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+
+        // Limit the number of results by maxResults
+        List<SearchResult> topResults = new List<SearchResult>();
+        for (int i = 0; i < Math.Min(matches.Count, maxResults); i++)
+        {
+            topResults.Add(new SearchResult(matches[i].Item1.GetSafeVersion(), matches[i].Item2, (float)(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond));
+        }
+
+        return topResults;
+    }
+
+    public List<SearchResult> FindByDotProduct(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    {
+        return FindBestMatches(query, vectorSelector, VectorMath.DotProduct, maxResults, similarityThreshold);
+    }
+
+    public List<SearchResult> FindByCosineSimilarity(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    {
+        return FindBestMatches(query, vectorSelector, VectorMath.CosineSimilarity, maxResults, similarityThreshold);
+    }
+
+    public List<SearchResult> FindByEuclideanDistance(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    {
+        return FindBestMatches(query, vectorSelector, (a, b) => -VectorMath.EuclideanDistance(a, b), maxResults, similarityThreshold);
+    }    
 }

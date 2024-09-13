@@ -96,32 +96,63 @@ public class ServicesController : ControllerBase
     }
 
     [HttpGet("GetCustomersByIssue/{serviceName}")]
-    public IActionResult GetCustomersByIssue(string serviceName, [FromQuery] string userQuery)
+    public async Task<IActionResult> GetCustomersByIssue(string serviceName, [FromQuery] string userQuery, int maxResults = 5, float similarityThreshold = 0.8f)
     {
-        // Assuming there's a JSON file containing customer data for issues
-        string jsonFileName = $"{serviceName.ToLower()}-issue-customer-list.json";
-
-        // Construct the full path to the JSON file
-        var jsonFilePath = $"{SampleBasePath}/{jsonFileName}";
-        Console.WriteLine($"path of customers: {jsonFilePath}");
-        
-
-        // Check if the file exists
-        if (!System.IO.File.Exists(jsonFilePath))
+        // Get the appropriate service based on serviceName
+        var result = GetServiceByName(serviceName, out var selectedService);
+        if (result != null)
         {
-            return NotFound("The customer file was not found.");
+            return result; // Return BadRequest if the service name is invalid
         }
-        // Read the file and output raw JSON for debugging
-        var jsonData = System.IO.File.ReadAllText(jsonFilePath);
-        
-        // Deserialize into a Dictionary where the key is the issue name
-    // Deserialize directly into IssueData
-        var issueData = JsonSerializer.Deserialize<IssueData>(jsonData);
 
-    // Update the OriginalUserPrompt with the user's query
-        issueData.OriginalUserPrompt = userQuery;
+        // Search for matching records in the selected service
+        var searchResults = await selectedService.SearchByDotProduct(userQuery, maxResults, similarityThreshold);
+
+        if (searchResults == null || searchResults.Count == 0)
+        {
+            return NotFound("No matching feedback records found.");
+        }
+
+        // Collect all user stories from the search results
+        var userStories = searchResults.Select(result => result.Item.UserStory).ToList();
+
+        // Call the helper method to generate a common user story
+        string commonUserStory = await selectedService.GenerateCommonUserStory(userStories);
+
+        // Extract customer data from the search results and build the IssueData object
+        var customers = searchResults.Select(result => new Customer
+        {
+            Name = result.Item.CustomerName,
+            Tpid = result.Item.CustomerTpid,
+            FeedbackTitle = result.Item.Title
+        }).ToList();
+
+        // Build the IssueData object
+        var issueData = new IssueData
+        {
+            OriginalUserPrompt = userQuery, // Store the original query
+            UserStory = commonUserStory,    // Use the generated common user story
+            Customers = customers           // Add the list of customers
+        };
 
         // Return the IssueData object as JSON
         return Ok(issueData);
+    }
+    private IActionResult GetServiceByName(string serviceName, out VectorDbService selectedService)
+    {
+        selectedService = serviceName.ToLower() switch
+        {
+            "cosmosdb" => _cosmosDbService,
+            "aks" => _aksService,
+            "adf" => _adfService,
+            _ => null
+        };
+
+        if (selectedService == null)
+        {
+            return BadRequest($"Invalid service name:{serviceName}!");
+        }
+
+        return null; // No error, service was found
     }
 }

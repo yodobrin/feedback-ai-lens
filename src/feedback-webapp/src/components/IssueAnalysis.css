@@ -1,0 +1,107 @@
+.issue-analyze {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.issue-textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.user-story-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: calc(100% - 40px);  /* Adjust this width to match the grid */
+  max-width: 100%;           /* Prevent it from stretching too far */
+}
+
+.impacted-customers-heading {
+  margin-top: 30px;
+  font-size: 1.5em;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.customer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: stretch; /* Ensures all items are aligned to the same height */
+}
+
+.customer-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: calc(25% - 20px);  /* This allows for 4 cards in a row with space between them */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px; /* Ensures that cards have consistent minimum height */
+}
+
+.customer-card h5 {
+  margin-top: 0;
+}
+
+.customer-card p {
+  margin: 5px 0;
+}
+
+@media screen and (max-width: 1024px) {
+  .customer-card {
+    width: calc(33.333% - 20px); /* 3 cards per row */
+  }
+  .user-story-card {
+    width: calc(100% - 40px);  /* Match the width of the grid for responsive layouts */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .customer-card {
+    width: calc(50% - 20px); /* 2 cards per row */
+  }
+  .user-story-card {
+    width: calc(100% - 40px);  /* Match the grid for smaller screens */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .customer-card {
+    width: 100%; /* 1 card per row on smaller screens */
+  }
+  .user-story-card {
+    width: 100%; /* Match the card width on small screens */
+  }
+}

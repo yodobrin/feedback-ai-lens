@@ -10,4 +10,6 @@ public class Customer
 
     [JsonPropertyName("tpid")]
     public string Tpid { get; set; }
+    [JsonPropertyName("feedback_title")]
+    public string FeedbackTitle { get; set; }
 }

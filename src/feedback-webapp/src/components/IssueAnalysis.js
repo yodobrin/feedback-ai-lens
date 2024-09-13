@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './IssueAnalysis.css'; // Ensure you have this for styling
 
 function IssueAnalysis({ serviceName }) {
   const [issue, setIssue] = useState('');  // Issue entered by the user
@@ -30,42 +31,53 @@ function IssueAnalysis({ serviceName }) {
       });
   };
 
+  // Helper function to bold key phrases
+  const formatUserStory = (userStory) => {
+    return (
+      <p>
+        <strong>As a</strong> {userStory.split('As a')[1].split('I want to')[0].trim()}<br />
+        <strong>I want to</strong> {userStory.split('I want to')[1].split('so that')[0].trim()}<br />
+        <strong>So I can</strong> {userStory.split('so that')[1].trim()}
+      </p>
+    );
+  };
+
   return (
     <div className="issue-analyze">
       <h3>Show me the customers impacted by <em>Issue</em></h3>
+      
       <textarea
         rows="2"
         placeholder="Enter issue"
         value={issue}
         onChange={(e) => setIssue(e.target.value)}
+        className="issue-textarea"
       />
-      <button onClick={handleCustomerSearch}>Search</button>
+      <button onClick={handleCustomerSearch} className="search-button">Search</button>
 
       {error && <div className="error-message">{error}</div>}
 
       {/* Display the issue data if available */}
       {issueData && (
         <>
-          <div className="user-story">
-            <h4>Original User Prompt</h4>
-            <p>{issueData.original_user_prompt}</p>
+          <div className="user-story-card">
+            <h4>Common Theme User Story</h4>
+            {issueData.user_story}
           </div>
-          <div className="user-story">
-            <h4>User Story</h4>
-            <p>{issueData.user_story}</p>
-          </div>
+
+          {/* Heading for Impacted Customers */}
+          <h3 className="impacted-customers-heading">Impacted Customers</h3>
 
           {/* Ensure customers array exists before using .map() */}
           {issueData.customers && issueData.customers.length > 0 ? (
-            <div className="customer-list">
-              <h4>Customers impacted by "{issue}"</h4>
-              <ul>
-                {issueData.customers.map((customer, index) => (
-                  <li key={index}>
-                    <strong>{customer.name}</strong> - {customer.industry} (TPID: {customer.tpid})
-                  </li>
-                ))}
-              </ul>
+            <div className="customer-grid">
+              {issueData.customers.map((customer, index) => (
+                <div className="customer-card" key={index}>
+                  <h5>{customer.name}</h5>
+                  <p><strong>Title:</strong> {customer.feedback_title}</p>
+                  <p><strong>TPID:</strong> {customer.tpid}</p>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No customers found for this issue.</p>

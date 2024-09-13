@@ -1,6 +1,5 @@
 configuration/.env
-sample-data/export.csv
-sample-data/exportedstories.json
+sample-data/*
 .DS*
 src/FeedbackApi/bin/*
 src/FeedbackApi/obj/*

@@ -3,7 +3,7 @@ import React from 'react';
 function ServiceHighlights({ serviceHighlights, onServiceClick }) {
   return (
     <div>
-      <h1>Service Highlights</h1>
+      <h1>Azure Service Highlights</h1>
       <div className="cards-container">
         {serviceHighlights.map((highlight, index) => (
           <div className="card" key={index} onClick={() => onServiceClick(highlight.ServiceName)}>
