@@ -31,30 +31,21 @@ function IssueAnalysis({ serviceName }) {
       });
   };
 
-  // Helper function to bold key phrases
-  const formatUserStory = (userStory) => {
-    return (
-      <p>
-        <strong>As a</strong> {userStory.split('As a')[1].split('I want to')[0].trim()}<br />
-        <strong>I want to</strong> {userStory.split('I want to')[1].split('so that')[0].trim()}<br />
-        <strong>So I can</strong> {userStory.split('so that')[1].trim()}
-      </p>
-    );
-  };
-
   return (
     <div className="issue-analyze">
       <h3>Show me the customers impacted by <em>Issue</em></h3>
       
-      <textarea
-        rows="2"
-        placeholder="Enter issue"
-        value={issue}
-        onChange={(e) => setIssue(e.target.value)}
-        className="issue-textarea"
-      />
-      <button onClick={handleCustomerSearch} className="search-button">Search</button>
-
+      <div className="search-container">
+        <textarea
+          rows="2"
+          className="issue-textarea"
+          placeholder="Enter issue"
+          value={issue}
+          onChange={(e) => setIssue(e.target.value)}
+        />
+        <button onClick={handleCustomerSearch} className="search-button">Search</button>
+      </div>
+   
       {error && <div className="error-message">{error}</div>}
 
       {/* Display the issue data if available */}
