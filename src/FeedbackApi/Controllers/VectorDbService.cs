@@ -74,7 +74,7 @@ using Azure.Core;
         {
             ChatCompletionsOptions options = new ChatCompletionsOptions
             {
-                MaxTokens = 500,
+                MaxTokens = 1000,
                 Temperature = 0.7f,
                 NucleusSamplingFactor = 0.95f,
                 FrequencyPenalty = 0.0f,
@@ -88,11 +88,10 @@ using Azure.Core;
             options.Messages.Add(new ChatRequestUserMessage(prompt));
 
             // Stop sequences to end chat completions
-            options.StopSequences.Add("\n");
+            // options.StopSequences.Add("\n");
 
             // Specify the deployment model
             options.DeploymentName = _chatCompletionDeploymentName;
-
             // Make the API request to get the chat completions
             Response<ChatCompletions> response = await _openAIClient.GetChatCompletionsAsync(options);
 
@@ -120,7 +119,7 @@ using Azure.Core;
             return embeddingsResponse.Value.Data[0].Embedding.ToArray();
         }
     // Add GenerateCommonUserStory to utilize CallOpenAI
-    public async Task<string> GenerateCommonUserStory(List<string> userStories)
+    public async Task<string> GenerateCommonUserStory(List<string> userStories, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
@@ -133,12 +132,34 @@ using Azure.Core;
         {
             prompt += $"- {story}\n";
         }
-        prompt += "\nGenerate a common user story that summarizes these.";
-
+        
+        // Use string interpolation to embed the user query in the system message from the interface
+        string systemMessage = string.Format(IOpenAIConstants.CommonUserStorySystemMessage, originalQuery);
         // Call OpenAI to generate the common user story
-        // string systemMessage = "You are an assistant tasked with summarizing user stories into a common user story.";
-        return await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage);
+        
+        return await CallOpenAI(prompt, systemMessage);
     }        
+
+    public async Task<string> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
+    {
+        if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
+        {
+            throw new Exception("OpenAI Client or model deployment name is not initialized.");
+        }
+
+        // Generate the prompt based on the feedback items
+        string prompt = "Here are several feedback items from different customers:\n\n";
+        foreach (var feedback in feedbackItems)
+        {
+            // Console.WriteLine($"Feedback: {feedback.Title} will be sent to openai");
+            prompt += $"- {feedback.Title}: {feedback.Description}\n";
+        }
+
+        // System message to guide the model        
+        string systemMessage = string.Format(IOpenAIConstants.FeedbackSummarizationSystemMessage, originalQuery);
+  
+        return await CallOpenAI(prompt, systemMessage);
+    }
     private async Task LoadDataFromLocalFolder(string jsonFileName)
     {
         // Get the path to the local folder (you can customize this)
@@ -228,3 +249,7 @@ using Azure.Core;
         return VectorCollection.FindByEuclideanDistance(queryVector, item => item.GetVector(), maxResults, similarityThreshold);
     }
 }
+// Define derived classes for each service type
+public class CosmosDbService : VectorDbService {}
+public class AksDbService : VectorDbService {}
+public class AdfDbService : VectorDbService {}

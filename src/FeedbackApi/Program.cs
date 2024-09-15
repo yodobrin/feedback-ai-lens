@@ -5,9 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 string configurationFile = Path.Combine(Directory.GetCurrentDirectory(),  "../../configuration/.env");
 Env.Load(configurationFile);
 
-string cosmosdbFileName = Environment.GetEnvironmentVariable("COSMOS_DB_FILE_NAME") ?? "cosmosdb-feedback-collection.json"; // default for ease of use 
-string adfFileName = Environment.GetEnvironmentVariable("ADF_FILE_NAME") ?? "adf-feedback-collection.json";
-string aksFileName = Environment.GetEnvironmentVariable("AKS_FILE_NAME") ?? "aks-feedback-collection.json";
+string cosmosdbFileName = Environment.GetEnvironmentVariable("COSMOS_DB_FILE_NAME") ?? "cosmosdb.json"; // default for ease of use 
+string adfFileName = Environment.GetEnvironmentVariable("ADF_FILE_NAME") ?? "adf.json";
+string aksFileName = Environment.GetEnvironmentVariable("AKS_FILE_NAME") ?? "aks.json";
 
 Console.WriteLine($"Loading these collections to memory: CosmosDB: {cosmosdbFileName}, ADF: {adfFileName}, AKS: {aksFileName}");
 
@@ -22,26 +22,36 @@ builder.Services.AddCors(options =>
 // Add the authorization service here
 builder.Services.AddAuthorization();
 // Register a dedicated VectorDbService for each service
-builder.Services.AddSingleton<VectorDbService>(sp =>
+builder.Services.AddSingleton<CosmosDbService>(sp =>
 {
-    var service = new VectorDbService();
-    service.InitializeAsync(cosmosdbFileName).Wait();  // Initialize with CosmosDB file
+    var service = new CosmosDbService();
+    service.InitializeAsync(cosmosdbFileName).Wait();
     return service;
 });
 
-builder.Services.AddSingleton<VectorDbService>(sp =>
+builder.Services.AddSingleton<AksDbService>(sp =>
 {
-    var service = new VectorDbService();
-    service.InitializeAsync(adfFileName).Wait();  // Initialize with ADF file
+    var service = new AksDbService();
+    service.InitializeAsync(aksFileName).Wait();
     return service;
 });
 
-builder.Services.AddSingleton<VectorDbService>(sp =>
+builder.Services.AddSingleton<AdfDbService>(sp =>
 {
-    var service = new VectorDbService();
-    service.InitializeAsync(aksFileName).Wait();  // Initialize with AKS file
+    var service = new AdfDbService();
+    service.InitializeAsync(adfFileName).Wait();
     return service;
 });
+// Register the ServiceResolver singleton
+builder.Services.AddSingleton<ServiceResolver>(sp =>
+{
+    var cosmosDbService = sp.GetRequiredService<CosmosDbService>();
+    var aksService = sp.GetRequiredService<AksDbService>();
+    var adfService = sp.GetRequiredService<AdfDbService>();
+
+    return new ServiceResolver(cosmosDbService, aksService, adfService);
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -49,10 +59,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// // Resolve the service
-// var vectorDbService = app.Services.GetRequiredService<VectorDbService>();
-// // Perform the initialization
-// await vectorDbService.InitializeAsync(cosmosdbFileName);
+
 
 // Enable CORS
 app.UseCors("AllowLocalhost");

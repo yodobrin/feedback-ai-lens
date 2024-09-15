@@ -143,3 +143,19 @@ textarea {
   border: none;
   border-radius: 4px;
 }
+/* Optional: You can style this as a spinner */
+.loading-indicator:after {
+  content: " ";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #555;
+  border-radius: 50%;
+  border-top: 2px solid #ddd;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

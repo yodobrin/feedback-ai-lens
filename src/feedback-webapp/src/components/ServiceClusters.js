@@ -1,44 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import ThemeAnalysis from './ThemeAnalysis';  // Handles issue analysis
-import IssueAnalysis from './IssueAnalysis';  // Future feature for customer search
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import ThemeAnalysis from './ThemeAnalysis';  // Import the ThemeAnalysis component
+import IssueAnalysis from './IssueAnalysis';  // Import the IssueAnalysis component
+import './ServiceClusters.css';  // Ensure the correct CSS import
 
-function ServiceClusters({ selectedService, onBack }) {
-  const [serviceClusters, setServiceClusters] = useState([]);
-  const [error, setError] = useState(null);
+function ServiceClusters() {
+  const { serviceName } = useParams();
+  const [clusters, setClusters] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:5229/api/Services/GetServiceClusters/${selectedService}`)
+    // Fetch clusters data for the selected service
+    fetch(`http://localhost:5229/api/Services/GetServiceClusters/${serviceName}`)
       .then(response => response.json())
-      .then(data => setServiceClusters(data))
-      .catch(error => {
-        console.error('Error fetching clusters:', error);
-        setError('Failed to load clusters');
-      });
-  }, [selectedService]);
+      .then(data => setClusters(data))
+      .catch(error => console.error('Error fetching clusters:', error));
+  }, [serviceName]);
+
+  const goBack = () => {
+    navigate('/');  // Navigate back to the main page
+  };
 
   return (
-    <div>
-      <button onClick={onBack}>Back to Highlights</button>
-      <h2>{selectedService} Clusters</h2>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="cards-container">
-        {serviceClusters.map((cluster, index) => (
-          <div className="cluster-card" key={index}>
-            <h3>{cluster.ClusterName}</h3>
-            <p>Common Element: {cluster.CommonElement}</p>
-            <p>Similar Feedbacks: {cluster.SimilarFeedbacks}</p>
-            <p>Distinct Customers: {cluster.DistinctCustomers}</p>
-          </div>
-        ))}
+    <div className="service-clusters">
+      <h3>{serviceName} Clusters</h3>
+      <div className="cluster-list">
+        {clusters.length > 0 ? (
+          clusters.map((cluster, index) => (
+            <div key={index} className="cluster-card">
+              <h4>{cluster.ClusterName}</h4>
+              <p><strong>Common Element:</strong> {cluster.CommonElement}</p>
+              <p><strong>Similar Feedbacks:</strong> {cluster.SimilarFeedbacks}</p>
+              <p><strong>Distinct Customers:</strong> {cluster.DistinctCustomers}</p>
+            </div>
+          ))
+        ) : (
+          <p>No clusters available.</p>
+        )}
       </div>
+      <button onClick={goBack} className="back-button">Back to Main Page</button>
 
-      {/* Analyze Section */}
-      <ThemeAnalysis serviceName={selectedService} />
-
-      {/* Future Feature: Search for impacted customers by issue or theme */}
-      <IssueAnalysis serviceName={selectedService} />
+      {/* Embedding ThemeAnalysis and IssueAnalysis Components */}
+      <ThemeAnalysis serviceName={serviceName} />
+      <IssueAnalysis serviceName={serviceName} />
     </div>
   );
 }

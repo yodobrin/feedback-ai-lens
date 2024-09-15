@@ -5,26 +5,21 @@ using System.Reflection.Metadata;
 [Route("api/[controller]")]
 public class ServicesController : ControllerBase
 {
-    const string SampleBasePath = "../FeedbackApi/DataSample";
-    private readonly VectorDbService _cosmosDbService;
-    private readonly VectorDbService _aksService;
-    private readonly VectorDbService _adfService;
+    string localFolderPath = string.Empty;
+    private readonly ServiceResolver _serviceResolver;
 
-    public ServicesController(
-        VectorDbService cosmosDbService,
-        VectorDbService aksService,
-        VectorDbService adfService)
+    public ServicesController(ServiceResolver serviceResolver)
     {
-        _cosmosDbService = cosmosDbService;
-        _aksService = aksService;
-        _adfService = adfService;
+        _serviceResolver = serviceResolver;
+        localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
     }
 
     [HttpGet("GetServiceHighlights")]
     public IActionResult GetServiceHighlights()
     {
         // Load data from a local JSON file 
-        var jsonData = System.IO.File.ReadAllText($"{SampleBasePath}/service-feedback.json");
+        string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
+        var jsonData = System.IO.File.ReadAllText($"{localFolderPath}/service-feedback.json");
         var serviceHighlights = JsonSerializer.Deserialize<List<ServiceHighlight>>(jsonData);
         
         // Process data, create summary statistics (e.g., total feedback, sentiment, etc.)
@@ -36,8 +31,15 @@ public class ServicesController : ControllerBase
     public IActionResult GetServiceClusters(string serviceName)
     {
         // Map service name to the corresponding JSON file
+        var normalizedServiceName = serviceName.ToLower() switch
+        {
+            "azure cosmos db" => "cosmosdb",
+            "azure kubernetes service" => "aks",
+            "azure data factory - data movement" => "adf",
+            _ => null
+        };
         string jsonFileName;
-        switch (serviceName.ToLower())
+        switch (normalizedServiceName)
         {
             case "cosmosdb":
                 jsonFileName = "cosmos-clusters.json";
@@ -55,9 +57,7 @@ public class ServicesController : ControllerBase
         }
 
         // Construct the full path to the JSON file
-        var jsonFilePath = $"{SampleBasePath}/{jsonFileName}";
-        
-        // Console.WriteLine(jsonFilePath);
+        var jsonFilePath = $"{localFolderPath}/{jsonFileName}";                
         // Check if the file exists
         if (!System.IO.File.Exists(jsonFilePath))
         {
@@ -72,37 +72,56 @@ public class ServicesController : ControllerBase
     }
 
     [HttpGet("GetSummaryByIssue/{serviceName}")]
-    public IActionResult GetSummaryByIssue(string serviceName, [FromQuery] string userQuery)
+    public async Task<IActionResult> GetSummaryByIssue(string serviceName, [FromQuery] string userQuery)
     {
-        string jsonFileName = $"{serviceName.ToLower()}-issue-summary.json";
+Console.WriteLine($"GetSummaryByIssue: {serviceName}, {userQuery}");
+        // Maximum number of feedback items to consider
+        int maxResults = IOpenAIConstants.MaxSimilarFeedbacks;
+        float similarityThreshold = IOpenAIConstants.SimilarityThreshold;
 
-        // Construct the full path to the JSON file, using the same approach as other APIs
-        var jsonFilePath = $"{SampleBasePath}/{jsonFileName}";
-        Console.WriteLine($"path of summary: {jsonFilePath}");
-
-        // Check if the file exists
-        if (!System.IO.File.Exists(jsonFilePath))
+       // Get the appropriate service based on serviceName
+        var selectedService = _serviceResolver.Resolve(serviceName);
+        if (selectedService == null)
         {
-            return NotFound("The issue summary file was not found.");
+            return BadRequest($"Invalid service name: {serviceName}");
         }
-        
-        // Read the file and output raw JSON for debugging
-        var jsonData = System.IO.File.ReadAllText(jsonFilePath);
-            
-        var issueSummary = JsonSerializer.Deserialize<IssueSummary>(jsonData);
 
+        // Perform a similarity search on the feedback data
+        var searchResults = await selectedService.SearchByDotProduct(userQuery, maxResults, similarityThreshold);
+
+        // Extract the user stories from the feedback results
+        var userStories = searchResults.Select(result => result.Item).ToList();
+
+        if (userStories.Count == 0)
+        {
+            Console.WriteLine("No similar feedback found for the specified issue.");
+            return NotFound("No similar feedback found for the specified issue.");
+        }
+
+        // Call OpenAI to summarize the user stories into a common summary
+        string summary = await selectedService.SummarizeFeedback(userStories, userQuery);
+
+        // Return the common user story and the number of similar feedback items
+        var issueSummary = new IssueSummary
+        {
+            Issue = userQuery,  // This field is mapped to 'Issue' in the model
+            Summary = summary,  // This is already aligned with 'summary' in the model
+            SimilarIssues = userStories.Count,  // This matches 'similar_issues'
+            DistinctCustomers = searchResults.Select(r => r.Item.CustomerName).Distinct().Count(),  // This matches 'distinct_customers'
+            FeedbackLinks = searchResults.Select(r => $"feedback_link_for_{r.Item.Id}").ToList()  // Matches 'feedback_links'
+        };
 
         return Ok(issueSummary);
     }
 
     [HttpGet("GetCustomersByIssue/{serviceName}")]
-    public async Task<IActionResult> GetCustomersByIssue(string serviceName, [FromQuery] string userQuery, int maxResults = 5, float similarityThreshold = 0.8f)
+    public async Task<IActionResult> GetCustomersByIssue(string serviceName, [FromQuery] string userQuery, int maxResults = 5, float similarityThreshold = IOpenAIConstants.SimilarityThreshold)
     {
         // Get the appropriate service based on serviceName
-        var result = GetServiceByName(serviceName, out var selectedService);
-        if (result != null)
+        var selectedService = _serviceResolver.Resolve(serviceName);
+        if (selectedService == null)
         {
-            return result; // Return BadRequest if the service name is invalid
+            return BadRequest($"Invalid service name: {serviceName}");
         }
 
         // Search for matching records in the selected service
@@ -112,12 +131,13 @@ public class ServicesController : ControllerBase
         {
             return NotFound("No matching feedback records found.");
         }
+        Console.WriteLine($"GetCustomersByIssue: {serviceName}, {userQuery} has: {searchResults.Count} user stories matched");
 
         // Collect all user stories from the search results
         var userStories = searchResults.Select(result => result.Item.UserStory).ToList();
 
         // Call the helper method to generate a common user story
-        string commonUserStory = await selectedService.GenerateCommonUserStory(userStories);
+        string commonUserStory = await selectedService.GenerateCommonUserStory(userStories,userQuery);
 
         // Extract customer data from the search results and build the IssueData object
         var customers = searchResults.Select(result => new Customer
@@ -138,21 +158,5 @@ public class ServicesController : ControllerBase
         // Return the IssueData object as JSON
         return Ok(issueData);
     }
-    private IActionResult GetServiceByName(string serviceName, out VectorDbService selectedService)
-    {
-        selectedService = serviceName.ToLower() switch
-        {
-            "cosmosdb" => _cosmosDbService,
-            "aks" => _aksService,
-            "adf" => _adfService,
-            _ => null
-        };
 
-        if (selectedService == null)
-        {
-            return BadRequest($"Invalid service name:{serviceName}!");
-        }
-
-        return null; // No error, service was found
-    }
 }

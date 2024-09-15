@@ -1,26 +1,26 @@
 [
     {
-      "ServiceName": "CosmosDB",
-      "TotalFeedback": 15,
-      "DistinctCustomers": 8,
-      "FeatureRequests": 5,
-      "Bugs": 3,
-      "OverallSentiment": "Positive"
-    },
+        "ServiceName": "Azure Cosmos DB",
+        "TotalFeedback": 600,
+        "DistinctCustomers": 120,
+        "FeatureRequests": 21,
+        "Bugs": 11,
+        "OverallSentiment": "Positive"
+      },
+      {
+        "ServiceName": "Azure Kubernetes Service",
+        "TotalFeedback": 600,
+        "DistinctCustomers": 192,
+        "FeatureRequests": 39,
+        "Bugs": 5,
+        "OverallSentiment": "Positive"
+      },
     {
-      "ServiceName": "Azure Kubernetes Service (AKS)",
-      "TotalFeedback": 20,
-      "DistinctCustomers": 12,
-      "FeatureRequests": 6,
-      "Bugs": 7,
-      "OverallSentiment": "Neutral"
-    },
-    {
-      "ServiceName": "Azure Data Factory",
-      "TotalFeedback": 10,
-      "DistinctCustomers": 5,
-      "FeatureRequests": 3,
-      "Bugs": 1,
-      "OverallSentiment": "Positive"
-    }
+        "ServiceName": "Azure Data Factory - Data Movement",
+        "TotalFeedback": 600,
+        "DistinctCustomers": 185,
+        "FeatureRequests": 51,
+        "Bugs": 34,
+        "OverallSentiment": "Positive"
+      }
   ]

@@ -1,41 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
-import ServiceHighlights from './components/ServiceHighlights';  // Highlight view component
-import ServiceClusters from './components/ServiceClusters';  // Service-specific view component
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ServiceHighlights from './components/ServiceHighlights';
+import ServiceClusters from './components/ServiceClusters';
+import ThemeAnalysis from './components/ThemeAnalysis';
+import IssueAnalysis from './components/IssueAnalysis';
+import './App.css'; // Global styles
 
 function App() {
-  const [serviceHighlights, setServiceHighlights] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState('');
 
-  useEffect(() => {
-    fetch('http://localhost:5229/api/Services/GetServiceHighlights')
-      .then(response => response.json())
-      .then(data => setServiceHighlights(data))
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
-
-  const handleServiceClick = (serviceName) => {
+  const handleServiceSelect = (serviceName) => {
     setSelectedService(serviceName);
   };
 
-  const handleBackToHighlights = () => {
-    setSelectedService(null);
-  };
-
   return (
-    <div className="App">
-      {selectedService === null ? (
-        <ServiceHighlights
-          serviceHighlights={serviceHighlights}
-          onServiceClick={handleServiceClick}
-        />
-      ) : (
-        <ServiceClusters
-          selectedService={selectedService}
-          onBack={handleBackToHighlights}
-        />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ServiceHighlights onServiceSelect={handleServiceSelect} />} />
+        <Route path="/service-clusters/:serviceName" element={<ServiceClusters />} />
+        <Route path="/clusters" element={<ServiceClusters serviceName={selectedService} />} />
+        <Route path="/theme-analysis" element={<ThemeAnalysis serviceName={selectedService} />} />
+        <Route path="/issue-analysis" element={<IssueAnalysis serviceName={selectedService} />} />
+      </Routes>
+    </Router>
   );
 }
 
