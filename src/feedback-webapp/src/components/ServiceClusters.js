@@ -115,8 +115,8 @@ function ServiceClusters() {
                 <div className="summary">
                   <strong>Summary:</strong>
                   <p>
-                    {expanded[cluster.ClusterId] 
-                      ? cluster.Summary 
+                    {expanded[cluster.ClusterId]
+                      ? cluster.Summary
                       : `${cluster.Summary.slice(0, 100)}...`}  {/* Show first 100 characters if collapsed */}
                   </p>
                   <button onClick={() => toggleSummary(cluster.ClusterId)}>
@@ -135,7 +135,7 @@ function ServiceClusters() {
                       {/* Show first 3 feedbacks if not expanded, else show all */}
                       {cluster.FeedbackRecords.slice(0, feedbackExpanded[cluster.ClusterId] ? cluster.FeedbackRecords.length : 3).map((feedback, feedbackIndex) => (
                         <li key={feedbackIndex}>
-                          <strong>Title:</strong>{feedback.Title} 
+                          <strong>Title:</strong>{feedback.Title}
                           <br />
                           <strong>Customer:</strong>{feedback.CustomerName}  <br />
                           <strong>User Story:</strong><em>{feedback.UserStory}</em>
@@ -185,6 +185,7 @@ function ServiceClusters() {
       <button onClick={goToIssueAnalysis} className="issue-analysis-button">Go to Issue Analysis</button>
 
       <button onClick={goBack} className="back-button">Back to Main Page</button>
+      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
     </div>
   );
 }

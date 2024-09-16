@@ -24,7 +24,7 @@ function IssueAnalysis() {
       setError('Please enter an issue to search');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
@@ -54,7 +54,7 @@ function IssueAnalysis() {
   return (
     <div className="issue-analyze">
       <h3>Show me the customers impacted by <em>Issue</em> for {serviceName}</h3>
-      
+
       <div className="search-container">
         <textarea
           rows="2"
@@ -65,7 +65,7 @@ function IssueAnalysis() {
         />
         <button onClick={handleCustomerSearch} className="search-button">Search</button>
       </div>
-      
+
       {loading && <div className="loading-indicator">Processing...</div>}
       {error && <div className="error-message">{error}</div>}
       {issueData && !loading && (
@@ -98,6 +98,7 @@ function IssueAnalysis() {
         <button onClick={goBack} className="back-button">Back</button>
         <button onClick={goToMainPage} className="main-page-button">Back to Main Page</button>
       </div>
+      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
     </div>
   );
 }

@@ -58,6 +58,7 @@ function ServiceHighlights() {
           ))}
         </div>
       )}
+      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
     </div>
   );
 }

@@ -70,10 +70,15 @@ button:hover {
   margin-bottom: 10px;
 }
 
-/* .analysis-result, .issue-result {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #eef2ff;
-  border: 1px solid #4f83cc;
-  border-radius: 8px;
-} */
+.bottom-right-logo {
+  position: absolute;
+  bottom: 20px;  /* Adjust distance from the bottom */
+  right: 20px;   /* Adjust distance from the right */
+  width: 100px;  /* Adjust the size of the image as needed */
+  height: auto;
+  opacity: 0.8;  /* Slight transparency */
+}
+
+.bottom-right-logo:hover {
+  opacity: 1;    /* Full opacity when hovered */
+}

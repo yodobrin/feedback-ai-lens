@@ -70,7 +70,7 @@ function ThemeAnalysis() {
       {loading && <div className="loading-indicator">Processing...</div>}
       {error && <div className="error-message">{error}</div>}
       {issueResult && (
-        <div className="issue-result">       
+        <div className="issue-result">
           <h4>{issueResult.title || 'No Title Available'}</h4>
 
           {issueResult.summary?.main_points && issueResult.summary.main_points.length > 0 ? (
@@ -116,6 +116,7 @@ function ThemeAnalysis() {
         <button onClick={goBack} className="back-button">Back</button>
         <button onClick={goToMainPage} className="main-page-button">Back to Main Page</button>
       </div>
+      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
     </div>
   );
 }
