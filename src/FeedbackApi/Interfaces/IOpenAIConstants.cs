@@ -1,6 +1,6 @@
 public interface IOpenAIConstants
 {
-    const float SimilarityThreshold = 0.7f;
+    const float SimilarityThreshold = 0.82f;
     const int MaxSimilarFeedbacks = 20;
     const string CommonUserStorySystemMessage = @"
         You are an assistant tasked with summarizing user stories into a common user story.

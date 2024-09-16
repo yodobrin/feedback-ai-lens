@@ -111,7 +111,7 @@ Console.WriteLine($"GetSummaryByIssue: {serviceName}, {userQuery}");
     }
 
     [HttpGet("GetCustomersByIssue/{serviceName}")]
-    public async Task<IActionResult> GetCustomersByIssue(string serviceName, [FromQuery] string userQuery, int maxResults = 5, float similarityThreshold = IOpenAIConstants.SimilarityThreshold)
+    public async Task<IActionResult> GetCustomersByIssue(string serviceName, [FromQuery] string userQuery, int maxResults = IOpenAIConstants.MaxSimilarFeedbacks, float similarityThreshold = IOpenAIConstants.SimilarityThreshold)
     {
         // Get the appropriate service based on serviceName
         var selectedService = _serviceResolver.Resolve(serviceName);
