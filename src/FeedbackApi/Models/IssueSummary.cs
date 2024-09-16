@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-// The model for the issue summary
+// The model for the issue summarypublic class IssueSummary
 public class IssueSummary
 {
     [JsonPropertyName("issue")]
@@ -15,6 +15,24 @@ public class IssueSummary
     [JsonPropertyName("feedback_links")]
     public List<string> FeedbackLinks { get; set; }
 
+    [JsonPropertyName("title")]
+    public string Title { get; set; }
+
     [JsonPropertyName("summary")]
-    public string Summary { get; set; }
+    public SummaryDetail Summary { get; set; }
+}
+
+public class SummaryDetail
+{
+    [JsonPropertyName("main_points")]
+    public List<MainPoint> MainPoints { get; set; }
+}
+
+public class MainPoint
+{
+    [JsonPropertyName("title")]
+    public string Title { get; set; }
+
+    [JsonPropertyName("description")]
+    public List<string> Description { get; set; }
 }

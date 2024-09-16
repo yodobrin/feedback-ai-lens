@@ -16,11 +16,15 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Main highlights page */}
         <Route path="/" element={<ServiceHighlights onServiceSelect={handleServiceSelect} />} />
+        
+        {/* Cluster page with parameterized serviceName */}
         <Route path="/service-clusters/:serviceName" element={<ServiceClusters />} />
-        <Route path="/clusters" element={<ServiceClusters serviceName={selectedService} />} />
-        <Route path="/theme-analysis" element={<ThemeAnalysis serviceName={selectedService} />} />
-        <Route path="/issue-analysis" element={<IssueAnalysis serviceName={selectedService} />} />
+        
+        {/* Theme Analysis and Issue Analysis pages */}
+        <Route path="/theme-analysis" element={<ThemeAnalysis />} />
+        <Route path="/issue-analysis" element={<IssueAnalysis />} />
       </Routes>
     </Router>
   );

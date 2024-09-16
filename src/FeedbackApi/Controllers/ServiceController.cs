@@ -98,19 +98,15 @@ Console.WriteLine($"GetSummaryByIssue: {serviceName}, {userQuery}");
             return NotFound("No similar feedback found for the specified issue.");
         }
 
-        // Call OpenAI to summarize the user stories into a common summary
-        string summary = await selectedService.SummarizeFeedback(userStories, userQuery);
+    // Call OpenAI to summarize the user stories into a common summary
+        var issueSummary = await selectedService.SummarizeFeedback(userStories, userQuery);
 
-        // Return the common user story and the number of similar feedback items
-        var issueSummary = new IssueSummary
-        {
-            Issue = userQuery,  // This field is mapped to 'Issue' in the model
-            Summary = summary,  // This is already aligned with 'summary' in the model
-            SimilarIssues = userStories.Count,  // This matches 'similar_issues'
-            DistinctCustomers = searchResults.Select(r => r.Item.CustomerName).Distinct().Count(),  // This matches 'distinct_customers'
-            FeedbackLinks = searchResults.Select(r => $"feedback_link_for_{r.Item.Id}").ToList()  // Matches 'feedback_links'
-        };
+        // Add additional fields to the IssueSummary object
+        issueSummary.SimilarIssues = userStories.Count;  // This matches 'similar_issues'
+        issueSummary.DistinctCustomers = searchResults.Select(r => r.Item.CustomerName).Distinct().Count();  // This matches 'distinct_customers'
+        issueSummary.FeedbackLinks = searchResults.Select(r => $"feedback_link_for_{r.Item.Id}").ToList();  // Matches 'feedback_links'
 
+        // Return the structured summary in the response
         return Ok(issueSummary);
     }
 

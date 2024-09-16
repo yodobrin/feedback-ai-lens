@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ThemeAnalysis from './ThemeAnalysis';  // Import the ThemeAnalysis component
-import IssueAnalysis from './IssueAnalysis';  // Import the IssueAnalysis component
-import './ServiceClusters.css';  // Ensure the correct CSS import
+import './ServiceClusters.css';
 
 function ServiceClusters() {
   const { serviceName } = useParams();
@@ -89,6 +87,15 @@ function ServiceClusters() {
     }));
   };
 
+  // Navigate to ThemeAnalysis and IssueAnalysis
+  const goToThemeAnalysis = () => {
+    navigate(`/theme-analysis`, { state: { serviceName } }); // Pass the serviceName to ThemeAnalysis
+  };
+
+  const goToIssueAnalysis = () => {
+    navigate(`/issue-analysis`, { state: { serviceName } }); // Pass the serviceName to IssueAnalysis
+  };
+
   return (
     <div className="service-clusters">
       <h3>{serviceName} Clusters</h3>
@@ -113,7 +120,7 @@ function ServiceClusters() {
                       : `${cluster.Summary.slice(0, 100)}...`}  {/* Show first 100 characters if collapsed */}
                   </p>
                   <button onClick={() => toggleSummary(cluster.ClusterId)}>
-                    {expanded[cluster.ClusterId] ? 'Show Feedbacks' : 'Read More'}
+                    {expanded[cluster.ClusterId] ? 'Show Less' : 'Read More'}
                   </button>
                 </div>
 
@@ -173,11 +180,11 @@ function ServiceClusters() {
         <button onClick={nextCluster} className="carousel-button" disabled={currentIndex >= clusters.length - 3}>Next</button>
       </div>
 
-      <button onClick={goBack} className="back-button">Back to Main Page</button>
+      {/* Buttons to navigate to ThemeAnalysis and IssueAnalysis */}
+      <button onClick={goToThemeAnalysis} className="theme-analysis-button">Go to Theme Analysis</button>
+      <button onClick={goToIssueAnalysis} className="issue-analysis-button">Go to Issue Analysis</button>
 
-      {/* Embedding ThemeAnalysis and IssueAnalysis Components */}
-      <ThemeAnalysis serviceName={serviceName} />
-      <IssueAnalysis serviceName={serviceName} />
+      <button onClick={goBack} className="back-button">Back to Main Page</button>
     </div>
   );
 }

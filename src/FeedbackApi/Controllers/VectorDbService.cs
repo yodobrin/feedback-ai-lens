@@ -70,11 +70,11 @@ using Azure.Core;
         //     await StoreUtility.SaveFunctionCodePairsToAzureBlobAsync(VectorCollection.GetFunctionCodePairs(), jsonFileName);
         // }
     // Helper method to call OpenAI
-        public async Task<string> CallOpenAI(string prompt, string systemMessage)
+        public async Task<string> CallOpenAI(string prompt, string systemMessage, bool useJson = false)
         {
             ChatCompletionsOptions options = new ChatCompletionsOptions
             {
-                MaxTokens = 1000,
+                MaxTokens = 4096,
                 Temperature = 0.7f,
                 NucleusSamplingFactor = 0.95f,
                 FrequencyPenalty = 0.0f,
@@ -89,7 +89,12 @@ using Azure.Core;
 
             // Stop sequences to end chat completions
             // options.StopSequences.Add("\n");
-
+            if (useJson)
+            {
+                options.ResponseFormat = ChatCompletionsResponseFormat.JsonObject;
+            }
+            
+            
             // Specify the deployment model
             options.DeploymentName = _chatCompletionDeploymentName;
             // Make the API request to get the chat completions
@@ -140,7 +145,7 @@ using Azure.Core;
         return await CallOpenAI(prompt, systemMessage);
     }        
 
-    public async Task<string> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
+    public async Task<IssueSummary> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
@@ -148,17 +153,37 @@ using Azure.Core;
         }
 
         // Generate the prompt based on the feedback items
-        string prompt = "Here are several feedback items from different customers:\n\n";
+        string prompt = "Here are several feedback items from different customers,:\n\n";
         foreach (var feedback in feedbackItems)
         {
-            // Console.WriteLine($"Feedback: {feedback.Title} will be sent to openai");
             prompt += $"- {feedback.Title}: {feedback.Description}\n";
         }
+        prompt += $"here is the user query:{originalQuery}. Make sure to respond in json format";
 
         // System message to guide the model        
-        string systemMessage = string.Format(IOpenAIConstants.FeedbackSummarizationSystemMessage, originalQuery);
-  
-        return await CallOpenAI(prompt, systemMessage);
+        // string systemMessage = string.Format(IOpenAIConstants.FeedbackSummarizationSystemMessage, originalQuery);
+
+        // Call OpenAI to generate the common element and summary
+        var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.FeedbackSummarizationSystemMessage, true);
+        Console.WriteLine($"OpenAI response: {openAIResponse}");
+        // Deserialize the OpenAI response into IssueSummary structure
+        try
+        {
+            var openAIResult = JsonSerializer.Deserialize<IssueSummary>(openAIResponse);
+            if (openAIResult != null)
+            {
+                return openAIResult;
+            }
+            else
+            {
+                throw new Exception("OpenAI response deserialization returned null.");
+            }
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error during JSON deserialization: {ex.Message}");
+            throw;
+        }
     }
     private async Task LoadDataFromLocalFolder(string jsonFileName)
     {

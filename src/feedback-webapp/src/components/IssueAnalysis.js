@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './IssueAnalysis.css';
 
-function IssueAnalysis({ serviceName }) {
+function IssueAnalysis() {
   const [issue, setIssue] = useState('');
   const [issueData, setIssueData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();  // Used to retrieve serviceName from the navigation state
+  const { serviceName } = location.state || {};  // Extract serviceName from the state
+
+  // If serviceName is not present, redirect back to main page
+  useEffect(() => {
+    if (!serviceName) {
+      navigate('/');
+    }
+  }, [serviceName, navigate]);
 
   const handleCustomerSearch = () => {
     if (!issue) {
@@ -25,15 +37,23 @@ function IssueAnalysis({ serviceName }) {
         setIssueData(data);
         setError(null);
       })
-      .catch(error => {
+      .catch(() => {
         setError('Failed to load customers');
       })
       .finally(() => setLoading(false));
   };
 
+  const goBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
+  const goToMainPage = () => {
+    navigate('/'); // Navigate back to the main page (Service Highlights)
+  };
+
   return (
     <div className="issue-analyze">
-      <h3>Show me the customers impacted by <em>Issue</em></h3>
+      <h3>Show me the customers impacted by <em>Issue</em> for {serviceName}</h3>
       
       <div className="search-container">
         <textarea
@@ -48,7 +68,7 @@ function IssueAnalysis({ serviceName }) {
       
       {loading && <div className="loading-indicator">Processing...</div>}
       {error && <div className="error-message">{error}</div>}
-      {issueData && !loading &&(
+      {issueData && !loading && (
         <>
           <div className="user-story-card">
             <h4>Common Theme User Story</h4>
@@ -72,6 +92,12 @@ function IssueAnalysis({ serviceName }) {
           )}
         </>
       )}
+
+      {/* Navigation buttons */}
+      <div className="navigation-buttons">
+        <button onClick={goBack} className="back-button">Back</button>
+        <button onClick={goToMainPage} className="main-page-button">Back to Main Page</button>
+      </div>
     </div>
   );
 }
