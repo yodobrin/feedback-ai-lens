@@ -2,7 +2,7 @@
 public class ServiceHighlight
 {
     [JsonPropertyName("ServiceName")]
-    public string ServiceName { get; set; }
+    public string ServiceName { get; set; } = string.Empty;
 
     [JsonPropertyName("TotalFeedback")]
     public int TotalFeedback { get; set; }
@@ -17,5 +17,5 @@ public class ServiceHighlight
     public int Bugs { get; set; }
 
     [JsonPropertyName("OverallSentiment")]
-    public string OverallSentiment { get; set; }
+    public string OverallSentiment { get; set; } = string.Empty;
 }

@@ -120,7 +120,7 @@ public class VectorCollection
 
         // List to store the matching results
         List<(FeedbackRecord, float)> matches = new List<(FeedbackRecord, float)>();
-Console.WriteLine($"Feedback records: {objects.Count}");
+
         // Evaluate similarity for each item in the collection
         for (int i = 0; i < objects.Count; i++)
         {

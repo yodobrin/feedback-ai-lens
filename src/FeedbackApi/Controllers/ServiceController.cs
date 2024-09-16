@@ -1,6 +1,5 @@
 using System.Reflection.Metadata;
 
-
 [ApiController]
 [Route("api/[controller]")]
 public class ServicesController : ControllerBase
@@ -17,11 +16,11 @@ public class ServicesController : ControllerBase
     [HttpGet("GetServiceHighlights")]
     public IActionResult GetServiceHighlights()
     {
-        // Load data from a local JSON file 
+        // Load data from a local JSON file
         string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
         var jsonData = System.IO.File.ReadAllText($"{localFolderPath}/service-feedback.json");
         var serviceHighlights = JsonSerializer.Deserialize<List<ServiceHighlight>>(jsonData);
-        
+
         // Process data, create summary statistics (e.g., total feedback, sentiment, etc.)
         // Return data as JSON response
         return Ok(serviceHighlights);
@@ -57,7 +56,7 @@ public class ServicesController : ControllerBase
         }
 
         // Construct the full path to the JSON file
-        var jsonFilePath = $"{localFolderPath}/{jsonFileName}";                
+        var jsonFilePath = $"{localFolderPath}/{jsonFileName}";
         // Check if the file exists
         if (!System.IO.File.Exists(jsonFilePath))
         {
@@ -74,7 +73,7 @@ public class ServicesController : ControllerBase
     [HttpGet("GetSummaryByIssue/{serviceName}")]
     public async Task<IActionResult> GetSummaryByIssue(string serviceName, [FromQuery] string userQuery)
     {
-Console.WriteLine($"GetSummaryByIssue: {serviceName}, {userQuery}");
+        Console.WriteLine($"GetSummaryByIssue: {serviceName}, {userQuery}");
         // Maximum number of feedback items to consider
         int maxResults = IOpenAIConstants.MaxSimilarFeedbacks;
         float similarityThreshold = IOpenAIConstants.SimilarityThreshold;

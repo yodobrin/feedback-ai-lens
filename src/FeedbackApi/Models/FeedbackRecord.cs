@@ -2,46 +2,46 @@
 public class FeedbackRecord : IVector
 {
     [JsonPropertyName("Id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     [JsonPropertyName("PartnerShortName")]
-    public string PartnerShortName { get; set; }
+    public string PartnerShortName { get; set; } = string.Empty;
 
     [JsonPropertyName("ServiceName")]
-    public string ServiceName { get; set; }
+    public string ServiceName { get; set; } = string.Empty;
 
     [JsonPropertyName("Type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
     [JsonPropertyName("Title")]
-    public string Title { get; set; }
+    public string Title { get; set; }  = string.Empty;
 
     [JsonPropertyName("Blocking")]
-    public string Blocking { get; set; }
+    public string Blocking { get; set; } = string.Empty;
 
     [JsonPropertyName("Description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("WorkaroundAvailable")]
-    public string WorkaroundAvailable { get; set; }
+    public string WorkaroundAvailable { get; set; } = string.Empty;
 
     [JsonPropertyName("Priority")]
-    public string Priority { get; set; }
+    public string Priority { get; set; } = string.Empty;
 
     [JsonPropertyName("CustomerName")]
-    public string CustomerName { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
 
     [JsonPropertyName("CustomerTpid")]
-    public string CustomerTpid { get; set; }
+    public string CustomerTpid { get; set; } = string.Empty;
 
     [JsonPropertyName("WorkaroundDescription")]
-    public string WorkaroundDescription { get; set; }
+    public string WorkaroundDescription { get; set; } = string.Empty;
 
     [JsonPropertyName("UserStory")]
-    public string UserStory { get; set; }
+    public string UserStory { get; set; } = string.Empty;
 
     [JsonPropertyName("Embedding")]
-    public float[] Embedding { get; set; } // Embedding for the user story as a float array
+    public float[] Embedding { get; set; } = [];// Embedding for the user story as a float array
 
     // Implement the GetVector method from IVector interface
     public float[] GetVector()
@@ -67,7 +67,7 @@ public class FeedbackRecord : IVector
             CustomerTpid = this.CustomerTpid,
             WorkaroundDescription = this.WorkaroundDescription,
             UserStory = this.UserStory,
-            Embedding = null // We do not include the embedding in the safe version
+            Embedding = [] // We do not include the embedding in the safe version
         };
     }
 }

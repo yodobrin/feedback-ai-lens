@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 public class IssueSummary
 {
     [JsonPropertyName("issue")]
-    public string Issue { get; set; }
+    public string Issue { get; set; } = string.Empty;
 
     [JsonPropertyName("similar_issues")]
     public int SimilarIssues { get; set; }
@@ -13,26 +13,26 @@ public class IssueSummary
     public int DistinctCustomers { get; set; }
 
     [JsonPropertyName("feedback_links")]
-    public List<string> FeedbackLinks { get; set; }
+    public List<string> FeedbackLinks { get; set; } = new List<string>();
 
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("summary")]
-    public SummaryDetail Summary { get; set; }
+    public SummaryDetail Summary { get; set; } = new SummaryDetail();
 }
 
 public class SummaryDetail
 {
     [JsonPropertyName("main_points")]
-    public List<MainPoint> MainPoints { get; set; }
+    public List<MainPoint> MainPoints { get; set; } = new List<MainPoint>();
 }
 
 public class MainPoint
 {
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("description")]
-    public List<string> Description { get; set; }
+    public List<string> Description { get; set; } = new List<string>();
 }

@@ -1,134 +1,114 @@
-// using VectorLibrary;
-// using Azure.Storage.Blobs;
-using System.IO;
+// using System.IO;
 using Azure.AI.OpenAI;
 using Azure;
-using Azure.Core;
+// using Azure.Core;
 
+public class VectorDbService
+{
+    public VectorCollection? VectorCollection { get; private set; }
+    private OpenAIClient? _openAIClient;
+    private string? _embeddingDeploymentName;
+    private string? _chatCompletionDeploymentName;
 
-
-    public class VectorDbService
+    public VectorDbService()
     {
-        public VectorCollection ? VectorCollection { get; private set; }
-        private OpenAIClient ? _openAIClient;
-        private string ? _embeddingDeploymentName;
-        private string ? _chatCompletionDeploymentName;
-
-        public VectorDbService()
+        Console.WriteLine("VectorDbService constructor called");
+    }
+    public async Task<SearchResult> SearchByDotProduct(string query)
+    {
+        // check the vector collection is not null throw exception
+        if (VectorCollection == null)
         {
-            Console.WriteLine("VectorDbService constructor called");            
+            throw new ArgumentException("VectorCollection is null");
         }
-        public async Task<SearchResult> SearchByDotProduct(string query)
+        var queryVector = await GetEmbeddings(query);
+        return VectorCollection.FindByDotProduct(queryVector, item => item.GetVector());
+    }
+    public async Task<SearchResult> SearchByCosineSimilarity(string query)
+    {
+        // check the vector collection is not null throw exception
+        if (VectorCollection == null)
         {
-            // check the vector collection is not null throw exception
-            if (VectorCollection == null)
-            {
-                throw new Exception("VectorCollection is null");
-            }
-            var queryVector = await GetEmbeddings(query);
-            return VectorCollection.FindByDotProduct(queryVector, item => item.GetVector());
-        }            
-        public async Task<SearchResult> SearchByCosineSimilarity(string query)
-        {
-            // check the vector collection is not null throw exception
-            if (VectorCollection == null)
-            {
-                throw new Exception("VectorCollection is null");
-            }
-            var queryVector = await GetEmbeddings(query);
-            return VectorCollection.FindByCosineSimilarity(queryVector, item => item.GetVector());
+            throw new ArgumentException("VectorCollection is null");
         }
-        public async Task<SearchResult> SearchByEuclideanDistance(string query)
+        var queryVector = await GetEmbeddings(query);
+        return VectorCollection.FindByCosineSimilarity(queryVector, item => item.GetVector());
+    }
+    public async Task<SearchResult> SearchByEuclideanDistance(string query)
+    {
+        // check the vector collection is not null throw exception
+        if (VectorCollection == null)
         {
-            // check the vector collection is not null throw exception
-            if (VectorCollection == null)
-            {
-                throw new Exception("VectorCollection is null");
-            }
-            var queryVector = await GetEmbeddings(query);
-            return VectorCollection.FindByEuclideanDistance(queryVector, item => item.GetVector());
+            throw new ArgumentException("VectorCollection is null");
         }
-        // public async Task CreateDatabaseAsync(string inputCsvFileName, string outputJsonFileName)
-        // {
-        //     // check for null on embeddingDeploymentName & openAIClient throw exception
-        //     if (string.IsNullOrEmpty(_embeddingDeploymentName)  || _openAIClient == null)
-        //     {
-        //         throw new Exception("OpenAI Client or Embedding Deployment Name is null");
-        //     }
-        //     List<FunctionCodePair> functionCodePairs = await StoreUtility.LoadFunctionCodePairsFromAzureBlobAsync(inputCsvFileName,_openAIClient,_embeddingDeploymentName);
-        //     await StoreUtility.SaveFunctionCodePairsToAzureBlobAsync(functionCodePairs, outputJsonFileName);
+        var queryVector = await GetEmbeddings(query);
+        return VectorCollection.FindByEuclideanDistance(queryVector, item => item.GetVector());
+    }
 
-        // }
-
-        // public async Task SaveFunctionCodePairsToBlobAsync(string jsonFileName)
-        // {
-        //     if (VectorCollection == null)
-        //     {
-        //         throw new InvalidOperationException("VectorCollection is not initialized.");
-        //     }
-        //     // Call the method to save the function code pairs to Azure Blob
-        //     await StoreUtility.SaveFunctionCodePairsToAzureBlobAsync(VectorCollection.GetFunctionCodePairs(), jsonFileName);
-        // }
     // Helper method to call OpenAI
-        public async Task<string> CallOpenAI(string prompt, string systemMessage, bool useJson = false)
+    public async Task<string> CallOpenAI(string prompt, string systemMessage, bool useJson = false)
+    {
+        // Check for null onopenAIClient
+        if (_openAIClient == null)
         {
-            ChatCompletionsOptions options = new ChatCompletionsOptions
-            {
-                MaxTokens = 4096,
-                Temperature = 0.7f,
-                NucleusSamplingFactor = 0.95f,
-                FrequencyPenalty = 0.0f,
-                PresencePenalty = 0.0f
-            };
-
-            // Add system message
-            options.Messages.Add(new ChatRequestSystemMessage(systemMessage));
-
-            // Add user message (the prompt generated from feedback)
-            options.Messages.Add(new ChatRequestUserMessage(prompt));
-
-            // Stop sequences to end chat completions
-            // options.StopSequences.Add("\n");
-            if (useJson)
-            {
-                options.ResponseFormat = ChatCompletionsResponseFormat.JsonObject;
-            }
-            
-            
-            // Specify the deployment model
-            options.DeploymentName = _chatCompletionDeploymentName;
-            // Make the API request to get the chat completions
-            Response<ChatCompletions> response = await _openAIClient.GetChatCompletionsAsync(options);
-
-            // Extract and return the first response from the choices
-            ChatCompletions completions = response.Value;
-            if (completions.Choices.Count > 0)
-            {
-                return completions.Choices[0].Message.Content;
-            }
-            else
-            {
-                return "No response generated.";
-            }
+            throw new ArgumentException("OpenAI Client is null");
         }
-        private async Task<float[]> GetEmbeddings(string query)
+        ChatCompletionsOptions options = new ChatCompletionsOptions
         {
-            // null check for embeddingDeploymentName & openAIClient throw exception
-            if (_embeddingDeploymentName == null || _openAIClient == null)
-            {
-                throw new Exception("OpenAI Client or Embedding Deployment Name is null");
-            }
+            MaxTokens = 4096,
+            Temperature = 0.7f,
+            NucleusSamplingFactor = 0.95f,
+            FrequencyPenalty = 0.0f,
+            PresencePenalty = 0.0f
+        };
 
-            EmbeddingsOptions embeddingsOptions = new EmbeddingsOptions(_embeddingDeploymentName,new List<string> { query });
-            var embeddingsResponse = await _openAIClient.GetEmbeddingsAsync(embeddingsOptions);
-            return embeddingsResponse.Value.Data[0].Embedding.ToArray();
+        // Add system message
+        options.Messages.Add(new ChatRequestSystemMessage(systemMessage));
+
+        // Add user message (the prompt generated from feedback)
+        options.Messages.Add(new ChatRequestUserMessage(prompt));
+
+        // Stop sequences to end chat completions
+        // options.StopSequences.Add("\n");
+        if (useJson)
+        {
+            options.ResponseFormat = ChatCompletionsResponseFormat.JsonObject;
         }
+
+        // Specify the deployment model
+        options.DeploymentName = _chatCompletionDeploymentName;
+        // Make the API request to get the chat completions
+        Response<ChatCompletions> response = await _openAIClient.GetChatCompletionsAsync(options);
+
+        // Extract and return the first response from the choices
+        ChatCompletions completions = response.Value;
+        if (completions.Choices.Count > 0)
+        {
+            return completions.Choices[0].Message.Content;
+        }
+        else
+        {
+            return "No response generated.";
+        }
+    }
+    private async Task<float[]> GetEmbeddings(string query)
+    {
+        // null check for embeddingDeploymentName & openAIClient throw exception
+        if (_embeddingDeploymentName == null || _openAIClient == null)
+        {
+            throw new ArgumentException("OpenAI Client or Embedding Deployment Name is null");
+        }
+
+        EmbeddingsOptions embeddingsOptions = new EmbeddingsOptions(_embeddingDeploymentName, new List<string> { query });
+        var embeddingsResponse = await _openAIClient.GetEmbeddingsAsync(embeddingsOptions);
+        return embeddingsResponse.Value.Data[0].Embedding.ToArray();
+    }
     // Add GenerateCommonUserStory to utilize CallOpenAI
     public async Task<string> GenerateCommonUserStory(List<string> userStories, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
-            throw new Exception("OpenAI Client or model deployment name is not initialized.");
+            throw new ArgumentException("OpenAI Client or model deployment name is not initialized.");
         }
 
         // Create the prompt based on the list of user stories
@@ -137,19 +117,19 @@ using Azure.Core;
         {
             prompt += $"- {story}\n";
         }
-        
+
         // Use string interpolation to embed the user query in the system message from the interface
         string systemMessage = string.Format(IOpenAIConstants.CommonUserStorySystemMessage, originalQuery);
         // Call OpenAI to generate the common user story
-        
+
         return await CallOpenAI(prompt, systemMessage);
-    }        
+    }
 
     public async Task<IssueSummary> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
-            throw new Exception("OpenAI Client or model deployment name is not initialized.");
+            throw new ArgumentException("OpenAI Client or model deployment name is not initialized.");
         }
 
         // Generate the prompt based on the feedback items
@@ -159,9 +139,6 @@ using Azure.Core;
             prompt += $"- {feedback.Title}: {feedback.Description}\n";
         }
         prompt += $"here is the user query:{originalQuery}. Make sure to respond in json format";
-
-        // System message to guide the model        
-        // string systemMessage = string.Format(IOpenAIConstants.FeedbackSummarizationSystemMessage, originalQuery);
 
         // Call OpenAI to generate the common element and summary
         var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.FeedbackSummarizationSystemMessage, true);
@@ -176,7 +153,7 @@ using Azure.Core;
             }
             else
             {
-                throw new Exception("OpenAI response deserialization returned null.");
+                throw new ArgumentException("OpenAI response deserialization returned null.");
             }
         }
         catch (JsonException ex)
@@ -228,12 +205,12 @@ using Azure.Core;
     public async Task InitializeAsync(string jsonFileName)
     {
         Console.WriteLine("Initializing VectorDbService & OpenAI Client");
-        // await LoadDataFromBlobStorage(jsonFileName);
+
         await LoadDataFromLocalFolder(jsonFileName);
         string oAiApiKey = Environment.GetEnvironmentVariable("AOAI_APIKEY") ?? "AOAI_APIKEY not found";
         string oAiEndpoint = Environment.GetEnvironmentVariable("AOAI_ENDPOINT") ?? "AOAI_ENDPOINT not found";
         _embeddingDeploymentName = Environment.GetEnvironmentVariable("EMBEDDING_DEPLOYMENTNAME") ?? "EMBEDDING_DEPLOYMENTNAME not found";
-        _chatCompletionDeploymentName = Environment.GetEnvironmentVariable("CHATCOMPLETION_DEPLOYMENTNAME") ?? "CHATCOMPLETION_DEPLOYMENTNAME not found"; 
+        _chatCompletionDeploymentName = Environment.GetEnvironmentVariable("CHATCOMPLETION_DEPLOYMENTNAME") ?? "CHATCOMPLETION_DEPLOYMENTNAME not found";
         AzureKeyCredential azureKeyCredential = new AzureKeyCredential(oAiApiKey);
         _openAIClient = new OpenAIClient(new Uri(oAiEndpoint), azureKeyCredential);
         Console.WriteLine("... Initialized VectorDbService & OpenAI Client !");
@@ -243,7 +220,7 @@ using Azure.Core;
     {
         if (VectorCollection == null)
         {
-            throw new Exception("VectorCollection is null");
+            throw new ArgumentException("VectorCollection is null");
         }
 
         var queryVector = await GetEmbeddings(query);
@@ -255,7 +232,7 @@ using Azure.Core;
     {
         if (VectorCollection == null)
         {
-            throw new Exception("VectorCollection is null");
+            throw new ArgumentException("VectorCollection is null");
         }
 
         var queryVector = await GetEmbeddings(query);
@@ -267,7 +244,7 @@ using Azure.Core;
     {
         if (VectorCollection == null)
         {
-            throw new Exception("VectorCollection is null");
+            throw new ArgumentException("VectorCollection is null");
         }
 
         var queryVector = await GetEmbeddings(query);
@@ -275,6 +252,6 @@ using Azure.Core;
     }
 }
 // Define derived classes for each service type
-public class CosmosDbService : VectorDbService {}
-public class AksDbService : VectorDbService {}
-public class AdfDbService : VectorDbService {}
+public class CosmosDbService : VectorDbService { }
+public class AksDbService : VectorDbService { }
+public class AdfDbService : VectorDbService { }

@@ -1,5 +1,5 @@
 
-    public interface IVector
-    {
-        float[] GetVector();    
-    }
+public interface IVector
+{
+    float[] GetVector();
+}
