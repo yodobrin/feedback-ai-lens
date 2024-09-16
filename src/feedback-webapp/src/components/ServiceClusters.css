@@ -7,9 +7,8 @@
 
 .cluster-list {
   display: flex;
-  flex-wrap: wrap; /* Ensures the cards wrap if they exceed the container width */
-  justify-content: space-between; /* Space evenly between cards */
-  gap: 20px; /* Add spacing between the cards */
+  justify-content: space-around;
+  margin-bottom: 20px;
 }
 
 .cluster-card {
@@ -18,11 +17,69 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: calc(33.333% - 20px); /* Three cards per row, with spacing */
+  width: 30%;
+  cursor: pointer;
+}
+
+.cluster-card.selected {
+  border-color: #007bff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cluster-card h4 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.cluster-card p {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.feedback-list {
+  margin-top: 20px;
+}
+
+.feedback-list h5 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.feedback-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.feedback-list li {
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.carousel-controls, .feedback-pagination {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  min-height: 180px;
+  margin-top: 20px;
+}
+
+.pagination-button, .carousel-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination-button:disabled, .carousel-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-button:hover:not(:disabled), .carousel-button:hover:not(:disabled) {
+  background-color: #45a049;
 }
 
 .back-button {
@@ -38,4 +95,11 @@
 
 .back-button:hover {
   background-color: #0056b3;
+}
+.summary p {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+h3 {
+  margin-bottom: 10px;
 }

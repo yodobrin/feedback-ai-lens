@@ -42,7 +42,7 @@ public class ServicesController : ControllerBase
         switch (normalizedServiceName)
         {
             case "cosmosdb":
-                jsonFileName = "cosmos-clusters.json";
+                jsonFileName = "cosmosdb-clusters.json";
                 break;
             case "azure kubernetes service (aks)":
             case "aks":
