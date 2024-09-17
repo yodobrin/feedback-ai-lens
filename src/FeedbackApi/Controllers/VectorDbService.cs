@@ -104,7 +104,7 @@ public class VectorDbService
         return embeddingsResponse.Value.Data[0].Embedding.ToArray();
     }
     // Add GenerateCommonUserStory to utilize CallOpenAI
-    public async Task<string> GenerateCommonUserStory(List<string> userStories, string originalQuery)
+    public async Task<IssueData> GenerateCommonUserStory(List<FeedbackRecord> feedbackRecords, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
@@ -113,16 +113,36 @@ public class VectorDbService
 
         // Create the prompt based on the list of user stories
         string prompt = "Here are several user stories from different customers:\n\n";
-        foreach (var story in userStories)
+        foreach (var feedback in feedbackRecords)
         {
-            prompt += $"- {story}\n";
+            prompt += $"CustomerName:{feedback.CustomerName} CustomerTPID:{feedback.CustomerTpid} feedback: {feedback.UserStory}\n";
         }
-
+        prompt += $"here is the user query:{originalQuery}. Make sure to respond in json format";
         // Use string interpolation to embed the user query in the system message from the interface
-        string systemMessage = string.Format(IOpenAIConstants.CommonUserStorySystemMessage, originalQuery);
+        // string systemMessage = string.Format(IOpenAIConstants.CommonUserStorySystemMessage, originalQuery);
         // Call OpenAI to generate the common user story
-
-        return await CallOpenAI(prompt, systemMessage);
+        Console.WriteLine($"Prompt: {prompt}");
+        var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage, true);
+        Console.WriteLine($"OpenAI GenerateCommonUserStory: {openAIResponse}");
+        try
+        {
+            // Deserialize the OpenAI response into IssueData structure
+            var issueData = JsonSerializer.Deserialize<IssueData>(openAIResponse);
+            if (issueData != null)
+            {
+                return issueData;
+            }
+            else
+            {
+                throw new ArgumentException("OpenAI response deserialization returned null.");
+            }
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error during JSON deserialization: {ex.Message}");
+            throw;
+        }
+        // return await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage, true);
     }
 
     public async Task<IssueSummary> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)

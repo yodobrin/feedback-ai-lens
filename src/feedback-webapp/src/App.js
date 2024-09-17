@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ServiceHighlights from './components/ServiceHighlights';
 import ServiceClusters from './components/ServiceClusters';
+import ClusterDeepDive from './components/ClusterDeepDive';
 import ThemeAnalysis from './components/ThemeAnalysis';
 import IssueAnalysis from './components/IssueAnalysis';
 import './App.css'; // Global styles
@@ -18,10 +19,10 @@ function App() {
       <Routes>
         {/* Main highlights page */}
         <Route path="/" element={<ServiceHighlights onServiceSelect={handleServiceSelect} />} />
-        
+
         {/* Cluster page with parameterized serviceName */}
         <Route path="/service-clusters/:serviceName" element={<ServiceClusters />} />
-        
+        <Route path="/cluster-deep-dive" element={<ClusterDeepDive />} />
         {/* Theme Analysis and Issue Analysis pages */}
         <Route path="/theme-analysis" element={<ThemeAnalysis />} />
         <Route path="/issue-analysis" element={<IssueAnalysis />} />

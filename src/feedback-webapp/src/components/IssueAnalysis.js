@@ -52,7 +52,7 @@ function IssueAnalysis() {
   };
 
   return (
-    <div className="issue-analyze"> 
+    <div className="issue-analyze">
       <h3>Show me customers who submitted feedback on &lt; specific issue&gt; in {serviceName}</h3>
       <div className="search-container">
         <textarea
@@ -71,18 +71,57 @@ function IssueAnalysis() {
         <>
           <div className="user-story-card">
             <h4>Common Theme User Story</h4>
-            {issueData.user_story}
+            {/* Adjusted to reflect the new structure for displaying the main points of the common user story */}
+            {issueData.summary_detail && issueData.summary_detail.main_points.map((point, index) => (
+              <div key={index} className="main-point">
+                <h5>{point.title}</h5>
+                <ul>
+                  {point.description.map((desc, i) => (
+                    <li key={i}>{desc}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          <h3 className="impacted-customers-heading">Impacted Customers</h3>
+          <h3 className="impacted-customers-heading">
+            Impacted Customers ({issueData.customers.length})
+          </h3>
 
           {issueData.customers && issueData.customers.length > 0 ? (
-            <div className="customer-grid">
+            <div className="customer-list">
               {issueData.customers.map((customer, index) => (
-                <div className="customer-card" key={index}>
-                  <h5>{customer.name}</h5>
-                  <p><strong>Title:</strong> {customer.feedback_title}</p>
-                  <p><strong>TPID:</strong> {customer.tpid}</p>
+                <div key={index} className="customer-summary-section">
+                  <p><strong>Customer:</strong>{customer.name}</p>
+                  <p><strong>Main theme:</strong> {customer.feedback_title}</p>
+
+                  {/* Displaying the customer's summary details */}
+                  {customer.summary_detail && customer.summary_detail.main_points.map((point, idx) => (
+                    <div key={idx} className="main-point">
+                      <p><strong>Specific Point(s):</strong>{point.title}</p>
+                      <ul>
+                        {point.description.map((desc, i) => (
+                          <li key={i}>{desc}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  <p><strong>Customer TPID:</strong> {customer.tpid}</p>
+
+                  {/* Display feedback records if available */}
+                  {customer.feedback_records && customer.feedback_records.length > 0 && (
+                    <div className="feedback-records">
+                      <p>Feedback Record(s)</p>
+                      {/* <h6>Feedback Records</h6> */}
+                      <ul>
+                        {customer.feedback_records.map((feedback, i) => (
+                          <li key={i}>{feedback.UserStory} ({feedback.Id})</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {/* Horizontal line to separate customers */}
+                  <hr />
                 </div>
               ))}
             </div>

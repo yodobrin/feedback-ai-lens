@@ -128,27 +128,18 @@ public class ServicesController : ControllerBase
         }
         Console.WriteLine($"GetCustomersByIssue: {serviceName}, {userQuery} has: {searchResults.Count} user stories matched");
 
-        // Collect all user stories from the search results
-        var userStories = searchResults.Select(result => result.Item.UserStory).ToList();
-
+        // we need the entire object sent to generate the common user story
+        var feedbackItems = searchResults.Select(result => result.Item).ToList();
         // Call the helper method to generate a common user story
-        string commonUserStory = await selectedService.GenerateCommonUserStory(userStories,userQuery);
-
-        // Extract customer data from the search results and build the IssueData object
-        var customers = searchResults.Select(result => new Customer
+        IssueData issueData = await selectedService.GenerateCommonUserStory(feedbackItems, userQuery);
+        // Now, attach the corresponding feedback records to each customer
+        foreach (var customer in issueData.Customers)
         {
-            Name = result.Item.CustomerName,
-            Tpid = result.Item.CustomerTpid,
-            FeedbackTitle = result.Item.Title
-        }).ToList();
-
-        // Build the IssueData object
-        var issueData = new IssueData
-        {
-            OriginalUserPrompt = userQuery, // Store the original query
-            UserStory = commonUserStory,    // Use the generated common user story
-            Customers = customers           // Add the list of customers
-        };
+            // Find the feedback records matching this customer (using customer name o)
+            customer.FeedbackRecords = feedbackItems
+                .Where(fb => fb.CustomerName == customer.Name )
+                .ToList();
+        }
 
         // Return the IssueData object as JSON
         return Ok(issueData);

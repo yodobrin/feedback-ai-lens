@@ -71,7 +71,7 @@ button:hover {
 }
 
 .bottom-right-logo {
-  position: absolute;
+  position: fixed;
   bottom: 20px;  /* Adjust distance from the bottom */
   right: 20px;   /* Adjust distance from the right */
   width: 100px;  /* Adjust the size of the image as needed */
