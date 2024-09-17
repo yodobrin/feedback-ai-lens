@@ -55,16 +55,16 @@ function ThemeAnalysis() {
 
   return (
     <div className="theme-analyze">
-      <h3>Summarize Feedback by Issue for {serviceName}</h3>
+      <h3>Summarize Feedback &lt;on specific issue&gt;	in {serviceName}</h3>
       <div className="search-container">
         <textarea
           rows="4"
-          placeholder="Enter feedback issue"
+          placeholder="Describe the product issue you want to search for"
           value={issue}
           onChange={(e) => setIssue(e.target.value)}
           className="issue-textarea"
         />
-        <button onClick={handleIssueAnalyze} className="search-button">Analyze</button>
+        <button onClick={handleIssueAnalyze} className="search-button">Search</button>
       </div>
 
       {loading && <div className="loading-indicator">Processing...</div>}

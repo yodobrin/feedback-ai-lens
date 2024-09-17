@@ -98,7 +98,7 @@ function ServiceClusters() {
 
   return (
     <div className="service-clusters">
-      <h3>{serviceName} Clusters</h3>
+      <h2>{serviceName} - Main Feedbacks Clusters</h2>
 
       <div className="cluster-carousel">
         {clusters.length > 0 ? (
@@ -109,7 +109,7 @@ function ServiceClusters() {
                 className={`cluster-card ${selectedClusterId === cluster.ClusterId ? 'selected' : ''}`}
                 onClick={() => handleClusterClick(cluster.ClusterId)}
               >
-                <h4>{cluster.CommonElement}</h4> {/* CommonElement as title */}
+                <h4>{cluster.CommonElement}</h4><br></br> {/* CommonElement as title */}
 
                 {/* Collapsible summary section */}
                 <div className="summary">
@@ -181,10 +181,9 @@ function ServiceClusters() {
       </div>
 
       {/* Buttons to navigate to ThemeAnalysis and IssueAnalysis */}
-      <button onClick={goToThemeAnalysis} className="theme-analysis-button">Go to Theme Analysis</button>
-      <button onClick={goToIssueAnalysis} className="issue-analysis-button">Go to Issue Analysis</button>
-
-      <button onClick={goBack} className="back-button">Back to Main Page</button>
+      <button onClick={goToThemeAnalysis} className="theme-analysis-button">Feedback Search</button>
+      <button onClick={goToIssueAnalysis} className="issue-analysis-button">Customers Search</button>
+      <button onClick={goBack} className="back-button" disabled={currentIndex >= clusters.length - 3}>Back to Main Page</button>
       <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
     </div>
   );
