@@ -38,7 +38,7 @@ function IssueAnalysis() {
         setError(null);
       })
       .catch(() => {
-        setError('Failed to load customers');
+        setError('Issue provided is too specific, No customers found matching the issue, Try expanding your search');
       })
       .finally(() => setLoading(false));
   };

@@ -36,7 +36,7 @@ function ThemeAnalysis() {
         setError(null);
       })
       .catch(() => {
-        setError('Failed to load issue summary');
+        setError('Issue provided is too specific, No feedback found matching the issue, Try expanding your search');
       })
       .finally(() => setLoading(false));
   };
