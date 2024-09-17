@@ -1,5 +1,8 @@
 .cluster-deep-dive {
+    margin: 0 auto;
+    max-width: 80%;  /* Adjust the width using percentage */
     padding: 20px;
+    text-align: left;
   }
 
   .summary {

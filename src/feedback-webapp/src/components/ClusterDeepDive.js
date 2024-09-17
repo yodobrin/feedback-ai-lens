@@ -15,7 +15,9 @@ function ClusterDeepDive() {
   const goBack = () => {
     navigate(-1); // Go back to the previous page
   };
-
+  const goToHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
   return (
     <div className="cluster-deep-dive">
       <h2>Deep Dive into Cluster: {cluster.CommonElement} [{serviceName}]</h2>
@@ -37,6 +39,14 @@ function ClusterDeepDive() {
       </ul>
 
       <button onClick={goBack} className="back-button">Back to Clusters</button>
+      {/* Clickable logo to navigate to the home view */}
+      <img
+        src="/hacklogo.png"
+        alt="Logo"
+        className="bottom-right-logo"
+        onClick={goToHome}  // Add navigation to the home page when the logo is clicked
+        style={{ cursor: 'pointer' }}  // Make the logo clickable
+      />
     </div>
   );
 }

@@ -44,6 +44,9 @@ function ServiceClusters() {
   const goToIssueAnalysis = () => {
     navigate(`/issue-analysis`, { state: { serviceName } }); // Navigate to Issue Analysis
   };
+  const goToHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
 
   return (
     <div className="service-clusters">
@@ -81,7 +84,14 @@ function ServiceClusters() {
       </div>
 
       <button onClick={goBack} className="back-button">Back to Main Page</button>
-      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
+      {/* Clickable logo to navigate to the home view */}
+      <img
+        src="/hacklogo.png"
+        alt="Logo"
+        className="bottom-right-logo"
+        onClick={goToHome}  // Add navigation to the home page when the logo is clicked
+        style={{ cursor: 'pointer' }}  // Make the logo clickable
+      />
     </div>
   );
 }

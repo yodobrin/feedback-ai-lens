@@ -116,7 +116,14 @@ function ThemeAnalysis() {
         <button onClick={goBack} className="back-button">Back</button>
         <button onClick={goToMainPage} className="main-page-button">Back to Main Page</button>
       </div>
-      <img src="/hacklogo.png" alt="Logo" className="bottom-right-logo" />
+      {/* Clickable logo to navigate to the home view */}
+      <img
+        src="/hacklogo.png"
+        alt="Logo"
+        className="bottom-right-logo"
+        onClick={goToMainPage}  // Add navigation to the home page when the logo is clicked
+        style={{ cursor: 'pointer' }}  // Make the logo clickable
+      />
     </div>
   );
 }
