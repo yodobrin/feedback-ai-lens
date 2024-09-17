@@ -36,7 +36,7 @@ function ServiceHighlights() {
 
   return (
     <div className="service-highlights">
-      <h3>Service Highlights</h3>
+      <br></br><h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FeedbackLens: AI-Driven Insights for Customer Feedback</h2><br></br><br></br>
       {loading && <div className="loading-indicator">Loading services...</div>}
       {error && <div className="error-message">{error}</div>}
 
@@ -48,12 +48,12 @@ function ServiceHighlights() {
               key={index}
               onClick={() => handleServiceClick(service.ServiceName)} // Pass the serviceName to the handle click function
             >
-              <h4>{service.ServiceName}</h4>
-              <p><strong>Total Feedback:</strong> {service.TotalFeedback}</p>
-              <p><strong>Distinct Customers:</strong> {service.DistinctCustomers}</p>
-              <p><strong>Feature Requests:</strong> {service.FeatureRequests}</p>
-              <p><strong>Bugs:</strong> {service.Bugs}</p>
-              <p><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p>
+              <h3>{service.ServiceName}</h3><br></br>
+              <p align="left"><strong >Total Feedback:</strong> {service.TotalFeedback}</p>
+              <p align="left"><strong>Distinct Customers:</strong> {service.DistinctCustomers}</p>
+              <p align="left"><strong>Feature Requests:</strong> {service.FeatureRequests}</p>
+              <p align="left"><strong>Bugs:</strong> {service.Bugs}</p>
+              <p align="left"><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p>
             </div>
           ))}
         </div>

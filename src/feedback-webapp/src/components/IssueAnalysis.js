@@ -52,14 +52,13 @@ function IssueAnalysis() {
   };
 
   return (
-    <div className="issue-analyze">
-      <h3>Show me the customers impacted by <em>Issue</em> for {serviceName}</h3>
-
+    <div className="issue-analyze"> 
+      <h3>Show me customers who submitted feedback on &lt; specific issue&gt; in {serviceName}</h3>
       <div className="search-container">
         <textarea
           rows="2"
           className="issue-textarea"
-          placeholder="Enter issue"
+          placeholder="Describe the product issue you want to search for"
           value={issue}
           onChange={(e) => setIssue(e.target.value)}
         />
