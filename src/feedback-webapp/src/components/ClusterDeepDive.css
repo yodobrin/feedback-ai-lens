@@ -1,0 +1,18 @@
+.cluster-deep-dive {
+    padding: 20px;
+  }
+
+  .summary {
+    margin-bottom: 20px;
+  }
+
+  .feedback-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+
+  .back-button {
+    margin-top: 20px;
+    padding: 10px;
+  }
