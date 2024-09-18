@@ -4,19 +4,6 @@
   padding: 20px;
   font-family: Arial, sans-serif;
 }
-.cluster-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 15px; /* Adjust the gap between image and header */
-  margin-bottom: 20px; /* Add margin below the header for separation */
-}
-
-.cluster-service-image {
-  width: 50px;  /* Adjust the size of the image as needed */
-  height: auto;
-  margin-right: 10px;
-}
 
 .cluster-list {
   display: flex;
@@ -76,24 +63,25 @@
   margin-top: 20px;
 }
 
-.pagination-button, .carousel-button {
+/* Standard buttons for navigation and pagination */
+.pagination-button, .carousel-button, .back-button {
   padding: 10px 20px;
   font-size: 16px;
-  /* background-color: #4CAF50; */
-  background-color: #4cafaf;
+  background-color: #4CAF50;
   color: white;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 4px;
 }
 
+.pagination-button:hover, .carousel-button:hover, .back-button:hover {
+  background-color: #45a049;
+}
+
+/* Disabled button styles */
 .pagination-button:disabled, .carousel-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
-}
-
-.pagination-button:hover:not(:disabled), .carousel-button:hover:not(:disabled) {
-  background-color:  #4cafaf;
 }
 
 .back-button {
@@ -102,45 +90,87 @@
   background-color: #007bff;
   color: white;
   border: none;
-  cursor: pointer;
   border-radius: 4px;
-  margin-top: 20px;
-  margin-left: 822px;
-}
-
-.theme-analysis-button {
-  padding: 10px 20px;
-  font-size: 20px;
-  background-color: #4CAF50;;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 12px;
-  margin-top: 20px;
-}
-
-.issue-analysis-button {
-  padding: 10px 20px;
-  font-size: 20px;
-  background-color: #4CAF50;;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 12px;
   margin-top: 20px;
 }
 
 .back-button:hover {
   background-color: #0056b3;
 }
+
+/* Additional navigation for theme and issue buttons */
+.additional-navigation {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 20px;
+}
+
+/* Distinct styles for Feedback Search and Customers Search buttons */
+.theme-analysis-button, .issue-analysis-button {
+  padding: 12px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #ff9800; /* Distinct color */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.theme-analysis-button:hover, .issue-analysis-button:hover {
+  background-color: #e68900;
+  transform: scale(1.05);
+}
+
+.theme-analysis-button::before, .issue-analysis-button::before {
+  content: '🔍'; /* Icon for feedback search */
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Service image aligned to the left of the header */
+.cluster-service-image {
+  width: 50px;  /* Adjust the size of the image */
+  height: auto;
+  margin-right: 15px; /* Add margin to the right */
+  vertical-align: middle; /* Align image with the text in the header */
+}
+
+/* Style the summary section */
 .summary p {
   transition: max-height 0.3s ease;
   overflow: hidden;
 }
-h3 {
-  margin-bottom: 10px;
-}
-.cluster-service-image {
-  width: 50px;  /* Adjust the size of the image as needed */
+
+/* Logo at bottom-right */
+.bottom-right-logo {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 100px;
   height: auto;
+  opacity: 0.8;
+}
+
+.bottom-right-logo:hover {
+  opacity: 1;
+  cursor: pointer; /* Make it clickable */
+}
+.cluster-header {
+  display: flex;
+  align-items: center; /* Vertically center-align the logo and text */
+  margin-top: 20px;
+}
+
+.cluster-service-image {
+  width: 50px;
+  height: auto;
+  margin-right: 10px; /* Adds space between the logo and the service name */
+}
+
+.cluster-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
 }

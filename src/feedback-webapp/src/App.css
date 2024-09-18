@@ -82,3 +82,14 @@ button:hover {
 .bottom-right-logo:hover {
   opacity: 1;    /* Full opacity when hovered */
 }
+.home-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.home-icon {
+  width: 40px;
+  height: auto;
+  cursor: pointer;
+}

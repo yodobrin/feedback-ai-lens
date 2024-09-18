@@ -59,15 +59,25 @@ function ServiceClusters() {
   }
   return (
     <div className="service-clusters">
-      <div className="cluster-header">  {/* Add a new flex container */}
-        {/* Dynamically load image based on the service name */}
-        <img
-          src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(serviceName)}_image.png`}
-          alt={`${serviceName} Logo`}
-          className="cluster-service-image"
-        />
-        <h2>{serviceName} - Main Feedback Clusters</h2>
-      </div>
+    {/* Home icon at the top right */}
+    <div className="home-container">
+      <img
+        src="/home.png"
+        alt="Home"
+        className="home-icon"
+        onClick={goToHome}  // Navigate to the home page
+        style={{ cursor: 'pointer' }}
+      />
+    </div>
+    {/* Cluster header with service logo and name in one line */}
+    <div className="cluster-header">
+      <img
+        src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(serviceName)}_image.png`}
+        alt={`${serviceName} Logo`}
+        className="cluster-service-image"
+      />
+      <h2>{serviceName} - Main Feedback Clusters</h2>
+    </div>
       <div className="cluster-carousel">
         {clusters.length > 0 ? (
           <div className="cluster-list">
@@ -100,7 +110,7 @@ function ServiceClusters() {
         <button onClick={goToIssueAnalysis} className="issue-analysis-button">Customers Search</button>
       </div>
 
-      <button onClick={goBack} className="back-button">Back to Main Page</button>
+      {/* <button onClick={goBack} className="back-button">Back to Main Page</button> */}
       {/* Clickable logo to navigate to the home view */}
       <img
         src="/hacklogo.png"

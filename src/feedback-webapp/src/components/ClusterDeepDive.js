@@ -20,6 +20,16 @@ function ClusterDeepDive() {
   };
   return (
     <div className="cluster-deep-dive">
+          {/* Home icon at the top right */}
+    <div className="home-container">
+      <img
+        src="/home.png"
+        alt="Home"
+        className="home-icon"
+        onClick={goToHome}  // Navigate to the home page
+        style={{ cursor: 'pointer' }}
+      />
+    </div>
       <h2>Deep Dive into Cluster: {cluster.CommonElement} [{serviceName}]</h2>
 
       <div className="summary">

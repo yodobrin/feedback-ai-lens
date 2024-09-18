@@ -49,12 +49,22 @@ function ThemeAnalysis() {
     navigate(-1); // Go back to the previous page (Service Clusters)
   };
 
-  const goToMainPage = () => {
+  const goToHome = () => {
     navigate('/'); // Navigate back to the main page (Service Highlights)
   };
 
   return (
     <div className="theme-analyze">
+    {/* Home icon at the top right */}
+    <div className="home-container">
+      <img
+        src="/home.png"
+        alt="Home"
+        className="home-icon"
+        onClick={goToHome}  // Navigate to the home page
+        style={{ cursor: 'pointer' }}
+      />
+    </div>
       <h3>Summarize Feedback &lt;on specific issue&gt;	in {serviceName}</h3>
       <div className="search-container">
         <textarea
@@ -114,14 +124,14 @@ function ThemeAnalysis() {
 
       <div className="navigation-buttons">
         <button onClick={goBack} className="back-button">Back</button>
-        <button onClick={goToMainPage} className="main-page-button">Back to Main Page</button>
+        <button onClick={goToHome} className="main-page-button">Back to Main Page</button>
       </div>
       {/* Clickable logo to navigate to the home view */}
       <img
         src="/hacklogo.png"
         alt="Logo"
         className="bottom-right-logo"
-        onClick={goToMainPage}  // Add navigation to the home page when the logo is clicked
+        onClick={goToHome}  // Add navigation to the home page when the logo is clicked
         style={{ cursor: 'pointer' }}  // Make the logo clickable
       />
     </div>
