@@ -33,6 +33,7 @@ function ServiceHighlights() {
   const handleServiceClick = (serviceName) => {
     navigate(`/service-clusters/${serviceName}`); // Navigate to the ServiceClusters page with serviceName
   };
+
   const getNormalizedServiceName = (serviceName) => {
     // Check for specific keywords and return a custom image name
     if (serviceName.toLowerCase().includes('factory')) {
@@ -41,8 +42,10 @@ function ServiceHighlights() {
       return 'cosmos_db';
     } else if (serviceName.toLowerCase().includes('kuber')) {
       return 'azure_kubernetes';
+    } else {
+      return 'default_image'; // Default image if no specific match is found
     }
-  }
+  };
 
   return (
     <div className="service-highlights">
@@ -59,18 +62,39 @@ function ServiceHighlights() {
               onClick={() => handleServiceClick(service.ServiceName)} // Pass the serviceName to the handle click function
             >
               <h3>{service.ServiceName}</h3><br></br>
-              <p align="left"><strong >Total Feedback:</strong> {service.TotalFeedback}</p>
+              <p align="left"><strong>Total Feedback:</strong> {service.TotalFeedback}</p>
               <p align="left"><strong>Distinct Customers:</strong> {service.DistinctCustomers}</p>
-              <p align="left"><strong>Feature Requests:</strong> {service.FeatureRequests}</p>
-              <p align="left"><strong>Bugs:</strong> {service.Bugs}</p>
-              <p align="left"><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p>
+              {/* <p align="left"><strong>Feature Requests:</strong> {service.FeatureRequests}</p> */}
+              {/* <p align="left"><strong>Bugs:</strong> {service.Bugs}</p> */}
+              {/* <p align="left"><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p> */}
+
+              {/* Divider between summary and feedback types */}
+              <hr className="divider" />
+
+              <p align="left"><strong>Feedback Types:</strong></p>
+              <div className="feedback-types">
+                {service.feedbackTypes.map((feedbackType, i) => (
+                  <div key={i} className="feedback-type">
+                    <strong>{feedbackType.type}:</strong> {feedbackType.count}
+                    {feedbackType.details.length > 0 && (
+                      <div className="feedback-details">
+                        {feedbackType.details.map((detail, j) => (
+                          <p key={j} style={{ marginLeft: '15px', textAlign: 'left' }}>
+                            <em>{detail.originalType.trim() !== '' ? detail.originalType : 'No Category'}:</em> {detail.count}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               {/* Dynamically load image based on the service name */}
               <img
                 src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(service.ServiceName)}_image.png`}
                 alt={`${service.ServiceName} Logo`}
                 className="service-image"
               />
-
             </div>
           ))}
         </div>

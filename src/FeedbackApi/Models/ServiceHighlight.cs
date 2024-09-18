@@ -1,4 +1,18 @@
+using System.Text.Json;  // For JSON serialization/deserialization
+using System.Text.Json.Serialization;
 
+public class FeedbackTypeSummary
+{
+    public string Type { get; set; } = string.Empty;
+    public int Count { get; set; }
+    public List<FeedbackTypeDetail> Details { get; set; } = new List<FeedbackTypeDetail>();  // List for collapsed categories
+}
+
+public class FeedbackTypeDetail
+{
+    public string OriginalType { get; set; } = string.Empty;
+    public int Count { get; set; }
+}
 public class ServiceHighlight
 {
     [JsonPropertyName("ServiceName")]
@@ -18,4 +32,6 @@ public class ServiceHighlight
 
     [JsonPropertyName("OverallSentiment")]
     public string OverallSentiment { get; set; } = string.Empty;
+
+    public List<FeedbackTypeSummary> FeedbackTypes { get; set; } = new List<FeedbackTypeSummary>();
 }

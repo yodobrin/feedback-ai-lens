@@ -18,7 +18,7 @@ public class ServicesController : ControllerBase
     {
         // Load data from a local JSON file
         string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
-        var jsonData = System.IO.File.ReadAllText($"{localFolderPath}/service-feedback.json");
+        var jsonData = System.IO.File.ReadAllText($"{localFolderPath}/combined_service_summary.json"); // new file name
         var serviceHighlights = JsonSerializer.Deserialize<List<ServiceHighlight>>(jsonData);
 
         // Process data, create summary statistics (e.g., total feedback, sentiment, etc.)

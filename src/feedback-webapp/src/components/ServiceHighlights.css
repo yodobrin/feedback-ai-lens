@@ -6,11 +6,11 @@
 
 .card {
   position: relative;
-  width: 250px;
+  width: 400px !important;  /* Force width to 400px */
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  text-align: center; /* This centers most content, but we'll override it below */
   background-color: #fff;
 }
 
@@ -25,10 +25,50 @@
 .card p {
   margin-bottom: 0;
 }
+
 .service-image {
   position: absolute;
   bottom: 10px;  /* Adjust as needed */
   right: 10px;   /* Adjust as needed */
   width: 50px;   /* Adjust the size of the image */
   height: auto;
+}
+
+.other-feedback-details {
+  margin-left: 20px;
+  list-style-type: disc;
+}
+
+.card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.card p {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.feedback-types {
+  padding-left: 10px;
+  text-align: left; /* Override centering for feedback types */
+}
+
+.feedback-type {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.feedback-details {
+  margin-left: 15px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+  margin: 10px 0;
 }
