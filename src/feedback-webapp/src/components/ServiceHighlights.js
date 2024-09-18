@@ -33,6 +33,16 @@ function ServiceHighlights() {
   const handleServiceClick = (serviceName) => {
     navigate(`/service-clusters/${serviceName}`); // Navigate to the ServiceClusters page with serviceName
   };
+  const getNormalizedServiceName = (serviceName) => {
+    // Check for specific keywords and return a custom image name
+    if (serviceName.toLowerCase().includes('factory')) {
+      return 'azure_data_factory';
+    } else if (serviceName.toLowerCase().includes('cosmos')) {
+      return 'cosmos_db';
+    } else if (serviceName.toLowerCase().includes('kuber')) {
+      return 'azure_kubernetes';
+    }
+  }
 
   return (
     <div className="service-highlights">
@@ -54,6 +64,13 @@ function ServiceHighlights() {
               <p align="left"><strong>Feature Requests:</strong> {service.FeatureRequests}</p>
               <p align="left"><strong>Bugs:</strong> {service.Bugs}</p>
               <p align="left"><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p>
+              {/* Dynamically load image based on the service name */}
+              <img
+                src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(service.ServiceName)}_image.png`}
+                alt={`${service.ServiceName} Logo`}
+                className="service-image"
+              />
+
             </div>
           ))}
         </div>

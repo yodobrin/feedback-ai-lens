@@ -47,10 +47,27 @@ function ServiceClusters() {
   const goToHome = () => {
     navigate('/'); // Navigate to the home page
   };
-
+  const getNormalizedServiceName = (serviceName) => {
+    // Check for specific keywords and return a custom image name
+    if (serviceName.toLowerCase().includes('factory')) {
+      return 'azure_data_factory';
+    } else if (serviceName.toLowerCase().includes('cosmos')) {
+      return 'cosmos_db';
+    } else if (serviceName.toLowerCase().includes('kuber')) {
+      return 'azure_kubernetes';
+    }
+  }
   return (
     <div className="service-clusters">
-      <h2>{serviceName} - Main Feedback Clusters</h2>
+      <div className="cluster-header">  {/* Add a new flex container */}
+        {/* Dynamically load image based on the service name */}
+        <img
+          src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(serviceName)}_image.png`}
+          alt={`${serviceName} Logo`}
+          className="cluster-service-image"
+        />
+        <h2>{serviceName} - Main Feedback Clusters</h2>
+      </div>
       <div className="cluster-carousel">
         {clusters.length > 0 ? (
           <div className="cluster-list">

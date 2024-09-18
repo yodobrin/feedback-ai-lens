@@ -5,15 +5,13 @@
 }
 
 .card {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  position: relative;
+  width: 250px;
   padding: 20px;
-  cursor: pointer;
-  width: 30%;
+  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  transition: transform 0.2s ease;
+  background-color: #fff;
 }
 
 .card:hover {
@@ -26,4 +24,11 @@
 
 .card p {
   margin-bottom: 0;
+}
+.service-image {
+  position: absolute;
+  bottom: 10px;  /* Adjust as needed */
+  right: 10px;   /* Adjust as needed */
+  width: 50px;   /* Adjust the size of the image */
+  height: auto;
 }
