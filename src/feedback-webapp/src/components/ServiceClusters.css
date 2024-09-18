@@ -110,7 +110,7 @@
   padding: 12px 30px;
   font-size: 18px;
   font-weight: bold;
-  background-color: #ff9800; /* Distinct color */
+  background-color: #0078D4; /* Azure blue */
   color: white;
   border: none;
   border-radius: 10px;
@@ -120,7 +120,7 @@
 }
 
 .theme-analysis-button:hover, .issue-analysis-button:hover {
-  background-color: #e68900;
+  background-color: #005A9E; /* Darker Azure blue on hover */
   transform: scale(1.05);
 }
 
