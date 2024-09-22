@@ -10,6 +10,10 @@
 - **Interactive Jupyter Notebooks**: Includes notebooks for research and feedback exploration with built-in functionality to process, embed, and analyze feedback data.
 - **JSON Export**: Outputs processed feedback, including generated user stories, to a JSON format for further analysis.
 
+## High Level Architecture
+
+Using `KQL` to extract service based data, the actual queries can be found in the `research.ipynb` notebook. The data is then processed and transformed into user stories using Azure OpenAI. The user stories are then embedded to facilitate similarity searches. The `summary.ipynb` and `clustering.ipynb` notebooks uses these embeddings for clustering feedbacks based on the embedding and the also create an aggregated view based on the feedback meta-data.
+
 ## Notebooks Overview
 
 ### 1. **Research Notebook** (`research.ipynb`)
@@ -17,7 +21,7 @@
    - **Functionality**:
      - Loads customer feedback data from Azure Data Explorer (ADX).
      - Uses natural language processing (NLP) to transform raw feedback into user stories.
-     - Researches and tests prompts to generate consistent, structured user stories in the format:  
+     - Researches and tests prompts to generate consistent, structured user stories in the format:
        `As a [persona], I want to [do something], so that I can [achieve something].`
      - Embeds feedback data to facilitate vector-based similarity searches.
    - **Technologies**:
@@ -25,14 +29,18 @@
      - ADX for querying feedback data.
    - **Example Use Case**: Enables product managers to gather feedback from multiple customers on a specific issue and generate actionable user stories.
 
-### 2. **Feedback Search Notebook** (`search.ipynb`)
+![Ingestion - Enrichment](./src/images/extract_enrich.png)
+
+### 2. **Feedback Summarization and Clustering Notebook** (`summary.ipynb`, `clustering.ipynb`)
    - **Objective**: Leverages the pre-processed data from the `research.ipynb` notebook for feedback exploration.
    - **Functionality**:
-     - Uses embeddings to find similar feedback based on a user query.
-     - Implements cosine similarity searches on feedback data to uncover related items.
+     - Uses embeddings run k-means clustering.
+     - Aggregate several key dimensions of the feedback data.
    - **Technologies**:
      - Azure OpenAI for embeddings.
      - Pre-processed feedback data from the research notebook.
+
+![Summary - Clustering](./src/images/sum_clustering.png)
 
 ## Installation
 
@@ -55,7 +63,7 @@
 1. Place your customer feedback CSV file in the specified directory (`./sample-data/`).
 2. Open either of the notebooks:
    - Use `research.ipynb` for feedback processing and user story generation.
-   - Use `search.ipynb` to explore similar feedback using embeddings and cosine similarity.
+   - Use `summary.ipynb` & `clustering.ipynb` to understand how summary and clustering are calculated.
 3. Run the cells to process the feedback and generate insights.
 4. The output can be exported as a JSON file for further use.
 
@@ -71,3 +79,6 @@ We welcome contributions! Please submit a pull request or open an issue for any 
 ## License
 
 This project is licensed under the MIT License.
+
+
+
