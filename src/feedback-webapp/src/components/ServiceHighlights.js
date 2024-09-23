@@ -49,7 +49,7 @@ function ServiceHighlights() {
 
   return (
     <div className="service-highlights">
-      <br></br><h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FeedbackLens: AI-Driven Insights for Customer Feedback</h2><br></br><br></br>
+      <br></br><h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product Leaders Copilot: AI-Driven Insights from Customer Feedback</h2><br></br><br></br>
       {loading && <div className="loading-indicator">Loading services...</div>}
       {error && <div className="error-message">{error}</div>}
 
