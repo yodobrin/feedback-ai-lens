@@ -18,6 +18,21 @@ function ClusterDeepDive() {
   const goToHome = () => {
     navigate('/'); // Navigate to the home page
   };
+
+  // Helper function to split and display user stories
+  const renderUserStories = (userStory) => {
+    // Split the userStory string by newlines
+    const stories = userStory.split('\n\n').filter(story => story.trim() !== ''); // Split on double newlines and remove empty items
+    return (
+      <ul>
+        {stories.map((story, index) => (
+          <li key={index}>
+            <em>{story}</em>
+          </li>
+        ))}
+      </ul>
+    );
+  };
   return (
     <div className="cluster-deep-dive">
           {/* Home icon at the top right */}
@@ -43,7 +58,8 @@ function ClusterDeepDive() {
           <li key={index} className="feedback-item">
             <strong>Title:</strong> {feedback.Title}<br />
             <strong>Customer:</strong> {feedback.CustomerName}<br />
-            <strong>User Story:</strong> <em>{feedback.UserStory}</em>
+            <strong>User Story(s):</strong>
+            {renderUserStories(feedback.UserStory)}  {/* Call helper function to render user stories */}
           </li>
         ))}
       </ul>
