@@ -1,9 +1,9 @@
-.card-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* This will create a responsive grid */
+  gap: 20px; /* Add some space between the cards */
+  justify-items: center; /* Center the items in the grid */
 }
-
 .card {
   position: relative;
   width: 400px !important;  /* Force width to 400px */

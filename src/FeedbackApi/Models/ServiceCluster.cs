@@ -1,5 +1,4 @@
 
-
 public class ServiceCluster
 {
     [JsonPropertyName("ClusterId")]
@@ -12,7 +11,7 @@ public class ServiceCluster
     public int SimilarFeedbacks { get; set; }
 
     [JsonPropertyName("DistinctCustomers")]
-    public int DistinctCustomers { get; set; } 
+    public int DistinctCustomers { get; set; }
 
     [JsonPropertyName("FeedbackRecords")]
     public List<FeedbackRecord> FeedbackRecords { get; set; } = new List<FeedbackRecord>();

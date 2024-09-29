@@ -4,13 +4,14 @@ import './ServiceHighlights.css'; // Import CSS from the same folder
 
 function ServiceHighlights() {
   const [services, setServices] = useState([]);
+  const [serviceLogos, setServiceLogos] = useState({}); // Store internal IDs for logos
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
-    fetch('http://localhost:5229/api/Services/GetServiceHighlights') // Adjust the API URL
+    fetch('http://localhost:5229/api/Services/GetServiceHighlights')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch service highlights');
@@ -19,6 +20,18 @@ function ServiceHighlights() {
       })
       .then((data) => {
         setServices(data); // Set the service highlights
+
+        // Fetch internal IDs (logos) for each service
+        const fetchServiceLogos = async () => {
+          const logos = {};
+          for (const service of data) {
+            const logo = await getNormalizedServiceName(service.ServiceName);
+            logos[service.ServiceName] = logo; // Store the logo with the service name as the key
+          }
+          setServiceLogos(logos); // Update state with the fetched logos
+        };
+
+        fetchServiceLogos();
         setError(null);
       })
       .catch((err) => {
@@ -34,22 +47,23 @@ function ServiceHighlights() {
     navigate(`/service-clusters/${serviceName}`); // Navigate to the ServiceClusters page with serviceName
   };
 
-  const getNormalizedServiceName = (serviceName) => {
-    // Check for specific keywords and return a custom image name
-    if (serviceName.toLowerCase().includes('factory')) {
-      return 'azure_data_factory';
-    } else if (serviceName.toLowerCase().includes('cosmos')) {
-      return 'cosmos_db';
-    } else if (serviceName.toLowerCase().includes('kuber')) {
-      return 'azure_kubernetes';
-    } else {
-      return 'default_image'; // Default image if no specific match is found
+  const getNormalizedServiceName = async (serviceName) => {
+    try {
+      const response = await fetch(`http://localhost:5229/api/Services/GetInternalId?serviceName=${encodeURIComponent(serviceName)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch internalId');
+      }
+      const data = await response.json();
+      return data.internalId;
+    } catch (error) {
+      console.error("Error fetching internalId:", error);
+      return 'NO_SUCH_SERVICE'; // Fallback for unknown services
     }
   };
 
   return (
     <div className="service-highlights">
-      <br></br><h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Product Leaders Copilot: AI-Driven Insights from Customer Feedback</h2><br></br><br></br>
+      <h2>Product Leaders Copilot: AI-Driven Insights from Customer Feedback</h2>
       {loading && <div className="loading-indicator">Loading services...</div>}
       {error && <div className="error-message">{error}</div>}
 
@@ -59,19 +73,15 @@ function ServiceHighlights() {
             <div
               className="card"
               key={index}
-              onClick={() => handleServiceClick(service.ServiceName)} // Pass the serviceName to the handle click function
+              onClick={() => handleServiceClick(service.ServiceName)}
             >
-              <h3>{service.ServiceName}</h3><br></br>
-              <p align="left"><strong>Total Feedback:</strong> {service.TotalFeedback}</p>
-              <p align="left"><strong>Distinct Customers:</strong> {service.DistinctCustomers}</p>
-              {/* <p align="left"><strong>Feature Requests:</strong> {service.FeatureRequests}</p> */}
-              {/* <p align="left"><strong>Bugs:</strong> {service.Bugs}</p> */}
-              {/* <p align="left"><strong>Overall Sentiment:</strong> {service.OverallSentiment}</p> */}
+              <h3>{service.ServiceName}</h3>
+              <p><strong>Total Feedback:</strong> {service.TotalFeedback}</p>
+              <p><strong>Distinct Customers:</strong> {service.DistinctCustomers}</p>
 
-              {/* Divider between summary and feedback types */}
               <hr className="divider" />
 
-              <p align="left"><strong>Feedback Types:</strong></p>
+              <p><strong>Feedback Types:</strong></p>
               <div className="feedback-types">
                 {service.feedbackTypes.map((feedbackType, i) => (
                   <div key={i} className="feedback-type">
@@ -91,7 +101,7 @@ function ServiceHighlights() {
 
               {/* Dynamically load image based on the service name */}
               <img
-                src={`${process.env.PUBLIC_URL}/${getNormalizedServiceName(service.ServiceName)}_image.png`}
+                src={`${process.env.PUBLIC_URL}/${serviceLogos[service.ServiceName] || 'NO_SUCH_SERVICE'}_image.png`}
                 alt={`${service.ServiceName} Logo`}
                 className="service-image"
               />

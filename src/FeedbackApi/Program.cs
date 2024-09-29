@@ -1,15 +1,54 @@
 using DotNetEnv;
+using Azure.AI.OpenAI;
+using Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string configurationFile = Path.Combine(Directory.GetCurrentDirectory(),  "../../configuration/.env");
 Env.Load(configurationFile);
 
-string cosmosdbFileName = Environment.GetEnvironmentVariable("COSMOS_DB_FILE_NAME") ?? "cosmosdb.json"; // default for ease of use 
-string adfFileName = Environment.GetEnvironmentVariable("ADF_FILE_NAME") ?? "adf.json";
-string aksFileName = Environment.GetEnvironmentVariable("AKS_FILE_NAME") ?? "aks.json";
+string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
 
-Console.WriteLine($"Loading these collections to memory: CosmosDB: {cosmosdbFileName}, ADF: {adfFileName}, AKS: {aksFileName}");
+var mappingFilePath = Path.Combine(localFolderPath, IOpenAIConstants.ServiceMappingFile);
+var serviceMappingConfig = JsonSerializer.Deserialize<ServiceMappingConfig>(File.ReadAllText(mappingFilePath));
+
+// Ensure service mappings are loaded
+if (serviceMappingConfig?.Services == null || !serviceMappingConfig.Services.Any())
+{
+    throw new InvalidOperationException("Service mappings configuration is missing or empty.");
+}
+
+// Initialize OpenAIClient
+
+var (oAiApiKey, oAiEndpoint, embeddingDeploymentName, chatCompletionDeploymentName) = GetOpenAIConfig();
+AzureKeyCredential azureKeyCredential = new AzureKeyCredential(oAiApiKey);
+var openAIClient = new OpenAIClient(new Uri(oAiEndpoint), azureKeyCredential);
+// Create a dictionary to hold service instances
+var serviceDictionary = new Dictionary<string, VectorDbService>(StringComparer.OrdinalIgnoreCase);
+
+// Initialize services
+foreach (var descriptor in serviceMappingConfig.Services)
+{
+    var service = new VectorDbService(embeddingDeploymentName, chatCompletionDeploymentName);
+
+    // Use the internal ID and file patterns to initialize the service
+    string jsonFileName = descriptor.FilePatterns.Vector;
+
+    // Initialize the service
+    service.InitializeAsync(jsonFileName, localFolderPath, openAIClient).Wait();
+
+    // Use the marketing name as the key in the dictionary
+    serviceDictionary[descriptor.MarketingName.Trim().ToLower()] = service;
+}
+// Register the list of ServiceDescriptors
+builder.Services.AddSingleton(serviceMappingConfig.Services);
+// Register the service dictionary and resolver
+builder.Services.AddSingleton(serviceDictionary);
+builder.Services.AddSingleton<ServiceResolver>(sp =>
+{
+    var services = sp.GetRequiredService<Dictionary<string, VectorDbService>>();
+    return new ServiceResolver(services, serviceMappingConfig.Services);
+});
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -21,45 +60,14 @@ builder.Services.AddCors(options =>
 });
 // Add the authorization service here
 builder.Services.AddAuthorization();
-// Register a dedicated VectorDbService for each service
-builder.Services.AddSingleton<CosmosDbService>(sp =>
-{
-    var service = new CosmosDbService();
-    service.InitializeAsync(cosmosdbFileName).Wait();
-    return service;
-});
 
-builder.Services.AddSingleton<AksDbService>(sp =>
-{
-    var service = new AksDbService();
-    service.InitializeAsync(aksFileName).Wait();
-    return service;
-});
-
-builder.Services.AddSingleton<AdfDbService>(sp =>
-{
-    var service = new AdfDbService();
-    service.InitializeAsync(adfFileName).Wait();
-    return service;
-});
-// Register the ServiceResolver singleton
-builder.Services.AddSingleton<ServiceResolver>(sp =>
-{
-    var cosmosDbService = sp.GetRequiredService<CosmosDbService>();
-    var aksService = sp.GetRequiredService<AksDbService>();
-    var adfService = sp.GetRequiredService<AdfDbService>();
-
-    return new ServiceResolver(cosmosDbService, aksService, adfService);
-});
-
+builder.Services.AddSingleton<ServiceResolver>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-
 
 // Enable CORS
 app.UseCors("AllowLocalhost");
@@ -71,3 +79,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static (string oAiApiKey, string oAiEndpoint, string embeddingDeploymentName, string chatCompletionDeploymentName) GetOpenAIConfig()
+{
+    string oAiApiKey = Environment.GetEnvironmentVariable("AOAI_APIKEY") ?? "AOAI_APIKEY not found";
+    string oAiEndpoint = Environment.GetEnvironmentVariable("AOAI_ENDPOINT") ?? "AOAI_ENDPOINT not found";
+    string embeddingDeploymentName = Environment.GetEnvironmentVariable("EMBEDDING_DEPLOYMENTNAME") ?? "EMBEDDING_DEPLOYMENTNAME not found";
+    string chatCompletionDeploymentName = Environment.GetEnvironmentVariable("CHATCOMPLETION_DEPLOYMENTNAME") ?? "CHATCOMPLETION_DEPLOYMENTNAME not found";
+    return (oAiApiKey, oAiEndpoint,embeddingDeploymentName, chatCompletionDeploymentName);
+}

@@ -1,37 +1,66 @@
 public class ServiceResolver
 {
-    private readonly CosmosDbService _cosmosDbService;
-    private readonly AksDbService _aksService;
-    private readonly AdfDbService _adfService;
+    private readonly Dictionary<string, VectorDbService> _services;
+    private readonly Dictionary<string, ServiceDescriptor> _serviceDescriptors;
 
-    public ServiceResolver(CosmosDbService cosmosDbService, AksDbService aksService, AdfDbService adfService)
+    public ServiceResolver(Dictionary<string, VectorDbService> services, List<ServiceDescriptor> serviceDescriptors)
     {
-        _cosmosDbService = cosmosDbService;
-        _aksService = aksService;
-        _adfService = adfService;
+        _services = services;
+        _serviceDescriptors = serviceDescriptors.ToDictionary(
+            s => s.MarketingName.Trim().ToLower(),
+            s => s,
+            StringComparer.OrdinalIgnoreCase
+        );
     }
 
     public VectorDbService Resolve(string serviceName)
     {
-        var normalizedServiceName = serviceName.ToLower() switch
+        if (string.IsNullOrWhiteSpace(serviceName))
         {
-            "azure cosmos db" => "cosmosdb",
-            "azure kubernetes service" => "aks",
-            "azure data factory - data movement" => "adf",
-            _ => null
-        };
-
-        if (normalizedServiceName == null)
-        {
-            throw new ArgumentException($"Invalid service name: {serviceName}");
+            throw new ArgumentException("Service name must not be empty.");
         }
 
-        return normalizedServiceName switch
+        var key = serviceName.Trim().ToLower();
+
+        if (_services.TryGetValue(key, out var service))
         {
-            "cosmosdb" => _cosmosDbService,
-            "aks" => _aksService,
-            "adf" => _adfService,
-            _ => throw new ArgumentException($"Invalid service name: {serviceName}")
-        };
+            return service;
+        }
+
+        throw new ArgumentException($"Service '{serviceName}' not found.");
+    }
+
+    public string GetInternalId(string serviceName)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName))
+        {
+            throw new ArgumentException("Service name must not be empty.");
+        }
+
+        var key = serviceName.Trim().ToLower();
+
+        if (_serviceDescriptors.TryGetValue(key, out var descriptor))
+        {
+            return descriptor.InternalId;
+        }
+
+        throw new ArgumentException($"Service '{serviceName}' not found in the service descriptors.");
+    }
+
+    public ServiceDescriptor GetServiceDescriptor(string serviceName)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName))
+        {
+            throw new ArgumentException("Service name must not be empty.");
+        }
+
+        var key = serviceName.Trim().ToLower();
+
+        if (_serviceDescriptors.TryGetValue(key, out var descriptor))
+        {
+            return descriptor;
+        }
+
+        throw new ArgumentException($"Service '{serviceName}' not found in the service descriptors.");
     }
 }

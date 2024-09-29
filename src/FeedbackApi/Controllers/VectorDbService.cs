@@ -7,13 +7,21 @@ public class VectorDbService
 {
     public VectorCollection? VectorCollection { get; private set; }
     private OpenAIClient? _openAIClient;
-    private string? _embeddingDeploymentName;
-    private string? _chatCompletionDeploymentName;
+    readonly string? _embeddingDeploymentName;
+    readonly string? _chatCompletionDeploymentName;
+
+
 
     public VectorDbService()
     {
         Console.WriteLine("VectorDbService constructor called");
     }
+    public VectorDbService(string embeddingDeploymentName, string chatCompletionDeploymentName)
+    {
+        _embeddingDeploymentName = embeddingDeploymentName;
+        _chatCompletionDeploymentName = chatCompletionDeploymentName;
+    }
+
     public async Task<SearchResult> SearchByDotProduct(string query)
     {
         // check the vector collection is not null throw exception
@@ -104,7 +112,7 @@ public class VectorDbService
         return embeddingsResponse.Value.Data[0].Embedding.ToArray();
     }
     // Add GenerateCommonUserStory to utilize CallOpenAI
-    public async Task<IssueData> GenerateCommonUserStory(List<FeedbackRecord> feedbackRecords, string originalQuery)
+    public async Task<IssueData> GenerateCommonUserStory(List<FeedbackRecord> feedbackItems, string originalQuery)
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
@@ -113,7 +121,7 @@ public class VectorDbService
 
         // Create the prompt based on the list of user stories
         string prompt = "Here are several user stories from different customers:\n\n";
-        foreach (var feedback in feedbackRecords)
+        foreach (var feedback in feedbackItems)
         {
             prompt += $"CustomerName:{feedback.CustomerName} CustomerTPID:{feedback.CustomerTpid} feedback: {feedback.UserStory}\n";
         }
@@ -121,9 +129,12 @@ public class VectorDbService
         // Use string interpolation to embed the user query in the system message from the interface
         // string systemMessage = string.Format(IOpenAIConstants.CommonUserStorySystemMessage, originalQuery);
         // Call OpenAI to generate the common user story
-        Console.WriteLine($"Prompt: {prompt}");
+        long btime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        Console.WriteLine($"Calling OpenAI with {feedbackItems.Count} feedback items.");
+        // Console.WriteLine($"Prompt: {prompt}");
         var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage, true);
-        Console.WriteLine($"OpenAI GenerateCommonUserStory: {openAIResponse}");
+        Console.WriteLine($"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms.");
+        // Console.WriteLine($"OpenAI GenerateCommonUserStory: {openAIResponse}");
         try
         {
             // Deserialize the OpenAI response into IssueData structure
@@ -142,7 +153,6 @@ public class VectorDbService
             Console.WriteLine($"Error during JSON deserialization: {ex.Message}");
             throw;
         }
-        // return await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage, true);
     }
 
     public async Task<IssueSummary> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
@@ -161,8 +171,10 @@ public class VectorDbService
         prompt += $"here is the user query:{originalQuery}. Make sure to respond in json format";
 
         // Call OpenAI to generate the common element and summary
+        long btime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        Console.WriteLine($"Calling OpenAI with {feedbackItems.Count} feedback items.");
         var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.FeedbackSummarizationSystemMessage, true);
-        Console.WriteLine($"OpenAI response: {openAIResponse}");
+        Console.WriteLine($"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms.");
         // Deserialize the OpenAI response into IssueSummary structure
         try
         {
@@ -182,11 +194,8 @@ public class VectorDbService
             throw;
         }
     }
-    private async Task LoadDataFromLocalFolder(string jsonFileName)
+    private async Task LoadDataFromLocalFolder(string localFolderPath, string jsonFileName)
     {
-        // Get the path to the local folder (you can customize this)
-        string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
-
         // Check if the environment variable is set correctly
         if (localFolderPath == "DB_ROOT_FOLDER not found" || string.IsNullOrEmpty(jsonFileName))
         {
@@ -222,19 +231,12 @@ public class VectorDbService
         }
     }
 
-    public async Task InitializeAsync(string jsonFileName)
+    public async Task InitializeAsync(string jsonFileName, string dbRootFolder, OpenAIClient openAIClient)
     {
-        Console.WriteLine("Initializing VectorDbService & OpenAI Client");
-
-        await LoadDataFromLocalFolder(jsonFileName);
-        string oAiApiKey = Environment.GetEnvironmentVariable("AOAI_APIKEY") ?? "AOAI_APIKEY not found";
-        string oAiEndpoint = Environment.GetEnvironmentVariable("AOAI_ENDPOINT") ?? "AOAI_ENDPOINT not found";
-        _embeddingDeploymentName = Environment.GetEnvironmentVariable("EMBEDDING_DEPLOYMENTNAME") ?? "EMBEDDING_DEPLOYMENTNAME not found";
-        _chatCompletionDeploymentName = Environment.GetEnvironmentVariable("CHATCOMPLETION_DEPLOYMENTNAME") ?? "CHATCOMPLETION_DEPLOYMENTNAME not found";
-        AzureKeyCredential azureKeyCredential = new AzureKeyCredential(oAiApiKey);
-        _openAIClient = new OpenAIClient(new Uri(oAiEndpoint), azureKeyCredential);
-        Console.WriteLine("... Initialized VectorDbService & OpenAI Client !");
+        _openAIClient = openAIClient;
+        await LoadDataFromLocalFolder(dbRootFolder, jsonFileName);
     }
+
     // Enhanced search method for dot product
     public async Task<List<SearchResult>> SearchByDotProduct(string query, int maxResults, float similarityThreshold)
     {
@@ -271,7 +273,4 @@ public class VectorDbService
         return VectorCollection.FindByEuclideanDistance(queryVector, item => item.GetVector(), maxResults, similarityThreshold);
     }
 }
-// Define derived classes for each service type
-public class CosmosDbService : VectorDbService { }
-public class AksDbService : VectorDbService { }
-public class AdfDbService : VectorDbService { }
+

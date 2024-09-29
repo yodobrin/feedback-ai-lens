@@ -4,24 +4,35 @@ using System.Reflection.Metadata;
 [Route("api/[controller]")]
 public class ServicesController : ControllerBase
 {
-    string localFolderPath = string.Empty;
+    readonly string _localFolderPath = string.Empty;
     private readonly ServiceResolver _serviceResolver;
 
     public ServicesController(ServiceResolver serviceResolver)
     {
         _serviceResolver = serviceResolver;
-        localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
+        _localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
+    }
+    [HttpGet("GetInternalId")]
+    public IActionResult GetInternalId([FromQuery] string serviceName)
+    {
+        try
+        {
+            var internalId = _serviceResolver.GetInternalId(serviceName);
+            return Ok(new { InternalId = internalId });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("GetServiceHighlights")]
     public IActionResult GetServiceHighlights()
     {
         // Load data from a local JSON file
-        string localFolderPath = Environment.GetEnvironmentVariable("DB_ROOT_FOLDER") ?? "DB_ROOT_FOLDER not found";
-        var jsonData = System.IO.File.ReadAllText($"{localFolderPath}/combined_service_summary.json"); // new file name
+        var serviceHighlightsFilePath = Path.Combine(_localFolderPath, IOpenAIConstants.CombinedSummaryFile);
+        var jsonData = System.IO.File.ReadAllText($"{serviceHighlightsFilePath}"); // new file name
         var serviceHighlights = JsonSerializer.Deserialize<List<ServiceHighlight>>(jsonData);
-
-        // Process data, create summary statistics (e.g., total feedback, sentiment, etc.)
         // Return data as JSON response
         return Ok(serviceHighlights);
     }
@@ -29,45 +40,21 @@ public class ServicesController : ControllerBase
     [HttpGet("GetServiceClusters/{serviceName}")]
     public IActionResult GetServiceClusters(string serviceName)
     {
-        // Map service name to the corresponding JSON file
-        var normalizedServiceName = serviceName.ToLower() switch
+        Console.WriteLine($"GetServiceClusters: {serviceName}");
+        try
         {
-            "azure cosmos db" => "cosmosdb",
-            "azure kubernetes service" => "aks",
-            "azure data factory - data movement" => "adf",
-            _ => null
-        };
-        string jsonFileName;
-        switch (normalizedServiceName)
+            // Get the service descriptor
+            var serviceDescriptor = _serviceResolver.GetServiceDescriptor(serviceName);
+            string clustersFileName = Path.Combine(_localFolderPath,serviceDescriptor.FilePatterns.Clusters);
+            var jsonData = System.IO.File.ReadAllText(clustersFileName);
+            var serviceClusters = JsonSerializer.Deserialize<List<ServiceCluster>>(jsonData);
+            return Ok(serviceClusters);
+        }
+        catch (ArgumentException ex)
         {
-            case "cosmosdb":
-                jsonFileName = "cosmosdb-clusters.json";
-                break;
-            case "azure kubernetes service (aks)":
-            case "aks":
-                jsonFileName = "aks-clusters.json";
-                break;
-            case "azure data factory":
-            case "adf":
-                jsonFileName = "adf-clusters.json";
-                break;
-            default:
-                return NotFound($"Service {serviceName} not found.");
+            return BadRequest(ex.Message);
         }
 
-        // Construct the full path to the JSON file
-        var jsonFilePath = $"{localFolderPath}/{jsonFileName}";
-        // Check if the file exists
-        if (!System.IO.File.Exists(jsonFilePath))
-        {
-            return NotFound("The cluster file was not found.");
-        }
-
-        // Read the file and deserialize the data
-        var jsonData = System.IO.File.ReadAllText(jsonFilePath);
-        var serviceClusters = JsonSerializer.Deserialize<List<ServiceCluster>>(jsonData);
-
-        return Ok(serviceClusters);
     }
 
     [HttpGet("GetSummaryByIssue/{serviceName}")]
@@ -86,8 +73,9 @@ public class ServicesController : ControllerBase
         }
 
         // Perform a similarity search on the feedback data
+        long start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         var searchResults = await selectedService.SearchByDotProduct(userQuery, maxResults, similarityThreshold);
-
+        Console.WriteLine($"Vector search took {DateTimeOffset.Now.ToUnixTimeMilliseconds()-start} ms");
         // Extract the user stories from the feedback results
         var userStories = searchResults.Select(result => result.Item).ToList();
 
@@ -120,7 +108,9 @@ public class ServicesController : ControllerBase
         }
 
         // Search for matching records in the selected service
+        long start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         var searchResults = await selectedService.SearchByDotProduct(userQuery, maxResults, similarityThreshold);
+        Console.WriteLine($"Vector search took {DateTimeOffset.Now.ToUnixTimeMilliseconds()-start} ms");
 
         if (searchResults == null || searchResults.Count == 0)
         {
@@ -131,7 +121,9 @@ public class ServicesController : ControllerBase
         // we need the entire object sent to generate the common user story
         var feedbackItems = searchResults.Select(result => result.Item).ToList();
         // Call the helper method to generate a common user story
+
         IssueData issueData = await selectedService.GenerateCommonUserStory(feedbackItems, userQuery);
+
         // Now, attach the corresponding feedback records to each customer
         foreach (var customer in issueData.Customers)
         {
