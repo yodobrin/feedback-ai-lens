@@ -38,7 +38,12 @@ function ServiceClusters() {
       return 'NO_SUCH_SERVICE'; // Fallback for unknown services
     }
   };
-
+  const goToThemeAnalysis = () => {
+    navigate(`/theme-analysis`, { state: { serviceName } }); // Navigate to Theme Analysis
+  };
+  const goToIssueAnalysis = () => {
+    navigate(`/issue-analysis`, { state: { serviceName } }); // Navigate to Issue Analysis
+  };
   const nextCluster = () => {
     if (currentIndex < clusters.length - 3) {
       setCurrentIndex(currentIndex + 1);
