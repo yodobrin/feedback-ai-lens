@@ -112,6 +112,13 @@ function ServiceClusters() {
         <button onClick={nextCluster} className="carousel-button" disabled={currentIndex >= clusters.length - 3}>Next</button>
       </div>
 
+      {/* Additional buttons for navigating to Theme Analysis and Issue Analysis */}
+      <div className="additional-navigation">
+        <button onClick={goToThemeAnalysis} className="theme-analysis-button">Feedback Search</button>
+        <button onClick={goToIssueAnalysis} className="issue-analysis-button">Customer Search</button>
+      </div>
+
+      {/* <button onClick={goBack} className="back-button">Back to Main Page</button> */}
       {/* Clickable logo to navigate to the home view */}
       <img
         src="/hacklogo.png"
