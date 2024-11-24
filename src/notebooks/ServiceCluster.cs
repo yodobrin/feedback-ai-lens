@@ -20,6 +20,9 @@ public class ServiceCluster
     [JsonPropertyName("FeedbackRecords")]
     public List<FeedbackRecord> FeedbackRecords { get; set; } // Array of full FeedbackRecords
 
+    [JsonPropertyName("SubClusters")]
+    public List<List<FeedbackRecord>> SubClusters { get; set; } // Array of subclusters
+
     [JsonPropertyName("Summary")]
     public string Summary { get; set; }
 }

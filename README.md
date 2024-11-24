@@ -80,5 +80,6 @@ We welcome contributions! Please submit a pull request or open an issue for any 
 
 This project is licensed under the MIT License.
 
-
+## Examples
+sample query for demo: express a desire for features such as Azure CNI Overlay, Multus CNI, and IPv6 support
 
