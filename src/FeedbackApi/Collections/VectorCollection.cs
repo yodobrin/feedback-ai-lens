@@ -11,7 +11,10 @@ public class VectorCollection
 
     public async Task SaveToDiskAsync(string path)
     {
-        string json = JsonSerializer.Serialize(objects, new JsonSerializerOptions { WriteIndented = true });
+        string json = JsonSerializer.Serialize(
+            objects,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         await File.WriteAllTextAsync(path, json);
     }
 
@@ -26,19 +29,25 @@ public class VectorCollection
         long start = DateTime.Now.Ticks;
         using var reader = new StreamReader(dataStream);
         string jsonFromStream = await reader.ReadToEndAsync();
-        List<FeedbackRecord> loadedObjects = JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonFromStream) ?? new List<FeedbackRecord>();
+        List<FeedbackRecord> loadedObjects =
+            JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonFromStream)
+            ?? new List<FeedbackRecord>();
 
         var collection = new VectorCollection(1536);
         collection.AddRange(loadedObjects);
         long endtime = DateTime.Now.Ticks;
-        Console.WriteLine($"Time to load data from memory: {(float)(endtime - start) / TimeSpan.TicksPerMillisecond} ms");
+        Console.WriteLine(
+            $"Time to load data from memory: {(float)(endtime - start) / TimeSpan.TicksPerMillisecond} ms"
+        );
         return collection;
     }
 
     public static async Task<VectorCollection> CreateFromDiskAsync(string path)
     {
         string jsonFromFile = await File.ReadAllTextAsync(path);
-        List<FeedbackRecord> loadedObjects = JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonFromFile) ?? new List<FeedbackRecord>();
+        List<FeedbackRecord> loadedObjects =
+            JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonFromFile)
+            ?? new List<FeedbackRecord>();
         var collection = new VectorCollection(1536);
         collection.AddRange(loadedObjects);
         return collection;
@@ -73,7 +82,11 @@ public class VectorCollection
     * The strategy parameter is used to determine which comparison strategy to use.
     * The vectorSelector parameter is used to select the vector to compare against the query vector.
     */
-    private SearchResult FindBestMatch(float[] query, Func<FeedbackRecord, float[]> vectorSelector, ComparisonStrategy strategy)
+    private SearchResult FindBestMatch(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector,
+        ComparisonStrategy strategy
+    )
     {
         long start = DateTime.Now.Ticks;
         float bestValue = float.MinValue;
@@ -90,23 +103,37 @@ public class VectorCollection
         }
         long endtime = DateTime.Now.Ticks;
 
-        return new SearchResult(objects[bestIndex].GetSafeVersion(), bestValue, (float)(endtime - start) / TimeSpan.TicksPerMillisecond);
+        return new SearchResult(
+            objects[bestIndex].GetSafeVersion(),
+            bestValue,
+            (float)(endtime - start) / TimeSpan.TicksPerMillisecond
+        );
     }
 
-    public SearchResult FindByDotProduct(float[] query, Func<FeedbackRecord, float[]> vectorSelector)
+    public SearchResult FindByDotProduct(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector
+    )
     {
         return FindBestMatch(query, vectorSelector, VectorMath.DotProduct);
     }
 
-    public SearchResult FindByCosineSimilarity(float[] query, Func<FeedbackRecord, float[]> vectorSelector)
+    public SearchResult FindByCosineSimilarity(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector
+    )
     {
         return FindBestMatch(query, vectorSelector, VectorMath.CosineSimilarity);
     }
 
-    public SearchResult FindByEuclideanDistance(float[] query, Func<FeedbackRecord, float[]> vectorSelector)
+    public SearchResult FindByEuclideanDistance(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector
+    )
     {
         return FindBestMatch(query, vectorSelector, (a, b) => -VectorMath.EuclideanDistance(a, b));
     }
+
     // list of results
     /*
     * This method is used to find the best matches for a given query vector.
@@ -114,7 +141,13 @@ public class VectorCollection
     * The vectorSelector parameter is used to select the vector to compare against the query vector.
     * Results are sorted by similarity score and limited by maxResults and similarityThreshold.
     */
-    private List<SearchResult> FindBestMatches(float[] query, Func<FeedbackRecord, float[]> vectorSelector, ComparisonStrategy strategy, int maxResults, float similarityThreshold)
+    private List<SearchResult> FindBestMatches(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector,
+        ComparisonStrategy strategy,
+        int maxResults,
+        float similarityThreshold
+    )
     {
         long start = DateTime.Now.Ticks;
 
@@ -140,24 +173,63 @@ public class VectorCollection
         List<SearchResult> topResults = new List<SearchResult>();
         for (int i = 0; i < Math.Min(matches.Count, maxResults); i++)
         {
-            topResults.Add(new SearchResult(matches[i].Item1.GetSafeVersion(), matches[i].Item2, (float)(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond));
+            topResults.Add(
+                new SearchResult(
+                    matches[i].Item1.GetSafeVersion(),
+                    matches[i].Item2,
+                    (float)(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond
+                )
+            );
         }
 
         return topResults;
     }
 
-    public List<SearchResult> FindByDotProduct(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    public List<SearchResult> FindByDotProduct(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector,
+        int maxResults,
+        float similarityThreshold
+    )
     {
-        return FindBestMatches(query, vectorSelector, VectorMath.DotProduct, maxResults, similarityThreshold);
+        return FindBestMatches(
+            query,
+            vectorSelector,
+            VectorMath.DotProduct,
+            maxResults,
+            similarityThreshold
+        );
     }
 
-    public List<SearchResult> FindByCosineSimilarity(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    public List<SearchResult> FindByCosineSimilarity(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector,
+        int maxResults,
+        float similarityThreshold
+    )
     {
-        return FindBestMatches(query, vectorSelector, VectorMath.CosineSimilarity, maxResults, similarityThreshold);
+        return FindBestMatches(
+            query,
+            vectorSelector,
+            VectorMath.CosineSimilarity,
+            maxResults,
+            similarityThreshold
+        );
     }
 
-    public List<SearchResult> FindByEuclideanDistance(float[] query, Func<FeedbackRecord, float[]> vectorSelector, int maxResults, float similarityThreshold)
+    public List<SearchResult> FindByEuclideanDistance(
+        float[] query,
+        Func<FeedbackRecord, float[]> vectorSelector,
+        int maxResults,
+        float similarityThreshold
+    )
     {
-        return FindBestMatches(query, vectorSelector, (a, b) => -VectorMath.EuclideanDistance(a, b), maxResults, similarityThreshold);
-    }    
+        return FindBestMatches(
+            query,
+            vectorSelector,
+            (a, b) => -VectorMath.EuclideanDistance(a, b),
+            maxResults,
+            similarityThreshold
+        );
+    }
 }

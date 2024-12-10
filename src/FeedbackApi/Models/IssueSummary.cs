@@ -21,4 +21,3 @@ public class IssueSummary
     [JsonPropertyName("summary")]
     public SummaryDetail Summary { get; set; } = new SummaryDetail();
 }
-

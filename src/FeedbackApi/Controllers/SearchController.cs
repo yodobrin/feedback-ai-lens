@@ -31,6 +31,7 @@ public class SearchController : ControllerBase
         var results = await _dbService.SearchByEuclideanDistance(query);
         return Ok(results);
     }
+
     [HttpPost("cosine")]
     public async Task<IActionResult> SearchByCosineSimilarity([FromBody] SearchRequest request)
     {

@@ -14,7 +14,7 @@ public class FeedbackRecord : IVector
     public string Type { get; set; } = string.Empty;
 
     [JsonPropertyName("Title")]
-    public string Title { get; set; }  = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("Blocking")]
     public string Blocking { get; set; } = string.Empty;

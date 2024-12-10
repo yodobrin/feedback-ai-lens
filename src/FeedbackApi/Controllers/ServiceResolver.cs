@@ -3,7 +3,10 @@ public class ServiceResolver
     private readonly Dictionary<string, VectorDbService> _services;
     private readonly Dictionary<string, ServiceDescriptor> _serviceDescriptors;
 
-    public ServiceResolver(Dictionary<string, VectorDbService> services, List<ServiceDescriptor> serviceDescriptors)
+    public ServiceResolver(
+        Dictionary<string, VectorDbService> services,
+        List<ServiceDescriptor> serviceDescriptors
+    )
     {
         _services = services;
         _serviceDescriptors = serviceDescriptors.ToDictionary(
@@ -44,7 +47,9 @@ public class ServiceResolver
             return descriptor.InternalId;
         }
 
-        throw new ArgumentException($"Service '{serviceName}' not found in the service descriptors.");
+        throw new ArgumentException(
+            $"Service '{serviceName}' not found in the service descriptors."
+        );
     }
 
     public ServiceDescriptor GetServiceDescriptor(string serviceName)
@@ -61,6 +66,8 @@ public class ServiceResolver
             return descriptor;
         }
 
-        throw new ArgumentException($"Service '{serviceName}' not found in the service descriptors.");
+        throw new ArgumentException(
+            $"Service '{serviceName}' not found in the service descriptors."
+        );
     }
 }

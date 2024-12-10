@@ -36,17 +36,17 @@ public class CSVFeedbackRecord
     public string UserStory { get; set; } = string.Empty;
 
     [Optional]
-    public float[] Embedding { get; set; } = Array.Empty<float>();// Embedding for the user story as a float array
+    public float[] Embedding { get; set; } = Array.Empty<float>(); // Embedding for the user story as a float array
 
     public string ToPrompt()
     {
-        return $"Service: {ServiceName}\n" +
-               $"Title: {Title}\n" +
-               $"Description: {Description}\n" +
-               $"Blocking: {Blocking}\n" +
-               $"Workaround Available: {WorkaroundAvailable}\n" +
-               $"Priority: {Priority}\n" +
-               $"Customer: {CustomerName}\n" +
-               $"UserStory: \n\n" ;
+        return $"Service: {ServiceName}\n"
+            + $"Title: {Title}\n"
+            + $"Description: {Description}\n"
+            + $"Blocking: {Blocking}\n"
+            + $"Workaround Available: {WorkaroundAvailable}\n"
+            + $"Priority: {Priority}\n"
+            + $"Customer: {CustomerName}\n"
+            + $"UserStory: \n\n";
     }
 }

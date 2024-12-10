@@ -1,6 +1,7 @@
 // using System.IO;
 using Azure.AI.OpenAI;
 using Azure;
+
 // using Azure.Core;
 
 public class VectorDbService
@@ -10,12 +11,11 @@ public class VectorDbService
     readonly string? _embeddingDeploymentName;
     readonly string? _chatCompletionDeploymentName;
 
-
-
     public VectorDbService()
     {
         Console.WriteLine("VectorDbService constructor called");
     }
+
     public VectorDbService(string embeddingDeploymentName, string chatCompletionDeploymentName)
     {
         _embeddingDeploymentName = embeddingDeploymentName;
@@ -32,6 +32,7 @@ public class VectorDbService
         var queryVector = await GetEmbeddings(query);
         return VectorCollection.FindByDotProduct(queryVector, item => item.GetVector());
     }
+
     public async Task<SearchResult> SearchByCosineSimilarity(string query)
     {
         // check the vector collection is not null throw exception
@@ -42,6 +43,7 @@ public class VectorDbService
         var queryVector = await GetEmbeddings(query);
         return VectorCollection.FindByCosineSimilarity(queryVector, item => item.GetVector());
     }
+
     public async Task<SearchResult> SearchByEuclideanDistance(string query)
     {
         // check the vector collection is not null throw exception
@@ -99,6 +101,7 @@ public class VectorDbService
             return "No response generated.";
         }
     }
+
     private async Task<float[]> GetEmbeddings(string query)
     {
         // null check for embeddingDeploymentName & openAIClient throw exception
@@ -107,23 +110,33 @@ public class VectorDbService
             throw new ArgumentException("OpenAI Client or Embedding Deployment Name is null");
         }
 
-        EmbeddingsOptions embeddingsOptions = new EmbeddingsOptions(_embeddingDeploymentName, new List<string> { query });
+        EmbeddingsOptions embeddingsOptions = new EmbeddingsOptions(
+            _embeddingDeploymentName,
+            new List<string> { query }
+        );
         var embeddingsResponse = await _openAIClient.GetEmbeddingsAsync(embeddingsOptions);
         return embeddingsResponse.Value.Data[0].Embedding.ToArray();
     }
+
     // Add GenerateCommonUserStory to utilize CallOpenAI
-    public async Task<IssueData> GenerateCommonUserStory(List<FeedbackRecord> feedbackItems, string originalQuery)
+    public async Task<IssueData> GenerateCommonUserStory(
+        List<FeedbackRecord> feedbackItems,
+        string originalQuery
+    )
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
-            throw new ArgumentException("OpenAI Client or model deployment name is not initialized.");
+            throw new ArgumentException(
+                "OpenAI Client or model deployment name is not initialized."
+            );
         }
 
         // Create the prompt based on the list of user stories
         string prompt = "Here are several user stories from different customers:\n\n";
         foreach (var feedback in feedbackItems)
         {
-            prompt += $"CustomerName:{feedback.CustomerName} CustomerTPID:{feedback.CustomerTpid} feedback: {feedback.UserStory}\n";
+            prompt +=
+                $"CustomerName:{feedback.CustomerName} CustomerTPID:{feedback.CustomerTpid} feedback: {feedback.UserStory}\n";
         }
         prompt += $"here is the user query:{originalQuery}. Make sure to respond in json format";
         // Use string interpolation to embed the user query in the system message from the interface
@@ -132,8 +145,14 @@ public class VectorDbService
         long btime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Console.WriteLine($"Calling OpenAI with {feedbackItems.Count} feedback items.");
         // Console.WriteLine($"Prompt: {prompt}");
-        var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.CommonUserStorySystemMessage, true);
-        Console.WriteLine($"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms.");
+        var openAIResponse = await CallOpenAI(
+            prompt,
+            IOpenAIConstants.CommonUserStorySystemMessage,
+            true
+        );
+        Console.WriteLine(
+            $"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms."
+        );
         // Console.WriteLine($"OpenAI GenerateCommonUserStory: {openAIResponse}");
         try
         {
@@ -155,11 +174,16 @@ public class VectorDbService
         }
     }
 
-    public async Task<IssueSummary> SummarizeFeedback(List<FeedbackRecord> feedbackItems, string originalQuery)
+    public async Task<IssueSummary> SummarizeFeedback(
+        List<FeedbackRecord> feedbackItems,
+        string originalQuery
+    )
     {
         if (_openAIClient == null || string.IsNullOrEmpty(_chatCompletionDeploymentName))
         {
-            throw new ArgumentException("OpenAI Client or model deployment name is not initialized.");
+            throw new ArgumentException(
+                "OpenAI Client or model deployment name is not initialized."
+            );
         }
 
         // Generate the prompt based on the feedback items
@@ -173,8 +197,14 @@ public class VectorDbService
         // Call OpenAI to generate the common element and summary
         long btime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         Console.WriteLine($"Calling OpenAI with {feedbackItems.Count} feedback items.");
-        var openAIResponse = await CallOpenAI(prompt, IOpenAIConstants.FeedbackSummarizationSystemMessage, true);
-        Console.WriteLine($"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms.");
+        var openAIResponse = await CallOpenAI(
+            prompt,
+            IOpenAIConstants.FeedbackSummarizationSystemMessage,
+            true
+        );
+        Console.WriteLine(
+            $"Got a response after {DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - btime} ms."
+        );
         // Deserialize the OpenAI response into IssueSummary structure
         try
         {
@@ -194,12 +224,15 @@ public class VectorDbService
             throw;
         }
     }
+
     private async Task LoadDataFromLocalFolder(string localFolderPath, string jsonFileName)
     {
         // Check if the environment variable is set correctly
         if (localFolderPath == "DB_ROOT_FOLDER not found" || string.IsNullOrEmpty(jsonFileName))
         {
-            Console.WriteLine("One or more environment variables are not set. Please set DB_ROOT_FOLDER and ensure jsonFileName is not empty.");
+            Console.WriteLine(
+                "One or more environment variables are not set. Please set DB_ROOT_FOLDER and ensure jsonFileName is not empty."
+            );
             return;
         }
 
@@ -212,7 +245,13 @@ public class VectorDbService
             try
             {
                 // Read the file asynchronously
-                using (FileStream fileStream = new FileStream(fullFilePath, FileMode.Open, FileAccess.Read))
+                using (
+                    FileStream fileStream = new FileStream(
+                        fullFilePath,
+                        FileMode.Open,
+                        FileAccess.Read
+                    )
+                )
                 {
                     // Pass the stream to your existing VectorCollection logic
                     VectorCollection = await VectorCollection.CreateFromMemoryAsync(fileStream);
@@ -231,14 +270,22 @@ public class VectorDbService
         }
     }
 
-    public async Task InitializeAsync(string jsonFileName, string dbRootFolder, OpenAIClient openAIClient)
+    public async Task InitializeAsync(
+        string jsonFileName,
+        string dbRootFolder,
+        OpenAIClient openAIClient
+    )
     {
         _openAIClient = openAIClient;
         await LoadDataFromLocalFolder(dbRootFolder, jsonFileName);
     }
 
     // Enhanced search method for dot product
-    public async Task<List<SearchResult>> SearchByDotProduct(string query, int maxResults, float similarityThreshold)
+    public async Task<List<SearchResult>> SearchByDotProduct(
+        string query,
+        int maxResults,
+        float similarityThreshold
+    )
     {
         if (VectorCollection == null)
         {
@@ -246,11 +293,20 @@ public class VectorDbService
         }
 
         var queryVector = await GetEmbeddings(query);
-        return VectorCollection.FindByDotProduct(queryVector, item => item.GetVector(), maxResults, similarityThreshold);
+        return VectorCollection.FindByDotProduct(
+            queryVector,
+            item => item.GetVector(),
+            maxResults,
+            similarityThreshold
+        );
     }
 
     // Enhanced search method for cosine similarity
-    public async Task<List<SearchResult>> SearchByCosineSimilarity(string query, int maxResults, float similarityThreshold)
+    public async Task<List<SearchResult>> SearchByCosineSimilarity(
+        string query,
+        int maxResults,
+        float similarityThreshold
+    )
     {
         if (VectorCollection == null)
         {
@@ -258,11 +314,20 @@ public class VectorDbService
         }
 
         var queryVector = await GetEmbeddings(query);
-        return VectorCollection.FindByCosineSimilarity(queryVector, item => item.GetVector(), maxResults, similarityThreshold);
+        return VectorCollection.FindByCosineSimilarity(
+            queryVector,
+            item => item.GetVector(),
+            maxResults,
+            similarityThreshold
+        );
     }
 
     // Enhanced search method for Euclidean distance
-    public async Task<List<SearchResult>> SearchByEuclideanDistance(string query, int maxResults, float similarityThreshold)
+    public async Task<List<SearchResult>> SearchByEuclideanDistance(
+        string query,
+        int maxResults,
+        float similarityThreshold
+    )
     {
         if (VectorCollection == null)
         {
@@ -270,7 +335,11 @@ public class VectorDbService
         }
 
         var queryVector = await GetEmbeddings(query);
-        return VectorCollection.FindByEuclideanDistance(queryVector, item => item.GetVector(), maxResults, similarityThreshold);
+        return VectorCollection.FindByEuclideanDistance(
+            queryVector,
+            item => item.GetVector(),
+            maxResults,
+            similarityThreshold
+        );
     }
 }
-
