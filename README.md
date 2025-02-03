@@ -10,6 +10,8 @@
 - **Interactive Jupyter Notebooks**: Includes notebooks for research and feedback exploration with built-in functionality to process, embed, and analyze feedback data.
 - **JSON Export**: Outputs processed feedback, including generated user stories, to a JSON format for further analysis.
 
+> Note: there is also a CLI version of this tool read more about it [here](./src/console/README.md)
+
 ## High Level Architecture
 
 Using `KQL` to extract service based data, the actual queries can be found in the `research.ipynb` notebook. The data is then processed and transformed into user stories using Azure OpenAI. The user stories are then embedded to facilitate similarity searches. The `summary.ipynb` and `clustering.ipynb` notebooks uses these embeddings for clustering feedbacks based on the embedding and the also create an aggregated view based on the feedback meta-data.

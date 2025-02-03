@@ -68,7 +68,7 @@ sealed class Program
             switch (runConfig.Operation.ToLower())
             {
                 case "summary":
-                    await ProcessSummaryOperation(runConfig);
+                    ProcessSummaryOperation(runConfig);
                     break;
 
                 case "json":
@@ -172,7 +172,7 @@ sealed class Program
 
     // ----------------- Operation Methods -----------------
 
-    private static async Task ProcessSummaryOperation(RunConfig runConfig)
+    private static void ProcessSummaryOperation(RunConfig runConfig)
     {
         Console.WriteLine("Executing summary generation...");
         var summary = SummaryGenerator.GenerateSummary(runConfig.InputFile);
