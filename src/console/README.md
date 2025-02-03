@@ -1,49 +1,65 @@
-# Product Leader Copilot CLI (fbl)
 
-The **Product Leader Copilot CLI** (also known as **fbl**) is a command-line tool that helps you generate summaries, user story JSON, clusters, and perform vector searches on feedback data.
+# Product Leader Copilot CLI
 
-> **Note:** This tool is part of the [Product Leader Copilot](https://github.com/yodobrin/feedback-ai-lens) project.
+The Product Leader Copilot CLI is a command-line tool designed to help you generate summaries, create user story JSON representations, cluster feedback, and perform vector-based searches on feedback data. This tool is part of the Product Leader Copilot project and is intended to be as simple as possible—even non-programmers can use it.
 
-## Features
+## Prerequisites
 
-- **Summary:** Generate a feedback summary from an input CSV file.
-- **JSON:** Create user story representations using OpenAI.
-- **Cluster:** Cluster feedback based on embedding similarities.
-- **Search:** Perform vector-based searches with customizable queries.
-  The search operation supports two modes:
-  - `find_customers`
-  - `find_use_cases`
+Before using the CLI tool, ensure that you have the following installed:
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (or later)
 
-## Installation
+## Getting Started
 
-### Option 1: Download the Executable
+You have two simple options to run the tool:
 
-1. Go to the [GitHub Releases](https://github.com/yodobrin/feedback-ai-lens/releases) page.
-2. Download the appropriate executable for your platform (e.g., `fbl` for macOS).
-3. (Optional) Place the executable in a folder that’s in your `PATH` (e.g., `/usr/local/bin`).
+**Option 1**: Run Directly with dotnet run
 
-### Option 2: Install as a .NET Global Tool
-
-If you prefer, you can package and distribute this CLI tool as a .NET global tool. (See the [GitHub Actions workflow](.github/workflows/release.yml) for packaging instructions.)
+If you just want to try the tool without creating a dedicated executable, you can run it directly from the source. From the repository root, open a terminal and execute:
 
 ```bash
-dotnet tool install -g ProductLeaderCopilotCLI --version <version>
+dotnet run --project src/console/console.csproj <RunConfigFile> <EnvFile>
 ```
 
-Then, run it using:
+Replace <RunConfigFile> with your run configuration JSON file (for example, run.json) and <EnvFile> with your environment file (for example, .env). This command uses the current platform as the target.
+
+**Option 2**: Build a Self-Contained Executable
+
+If you prefer to build a standalone executable for your platform, you can publish the tool with a specific runtime identifier. The default target is the one you’re running on, but here are some common options:
+
+- macOS (Intel): osx-x64
+- macOS (Apple Silicon): osx-arm64
+- Windows (x64): win-x64
+
+To publish for your platform, run a command like:
 
 ```bash
-fbl <RunConfigFile> <EnvFile>
+dotnet publish src/console/console.csproj -c Release -r <RID> --self-contained true -o ./publish
 ```
 
-## Usage
+Replace <RID> with the runtime identifier for your platform (for example, osx-arm64 on Apple Silicon). The resulting executable will be located in the ./publish folder.
 
-The CLI tool requires two arguments:
-	•	RunConfigFile: A JSON file that defines the run configuration.
-	•	EnvFile: A file containing the required environment variables.
+Once built, you can run the executable like this:
 
-Example Run Configuration (run.json)
+On macOS/Linux:
 
+```bash
+./publish/console <RunConfigFile> <EnvFile>
+```
+
+On Windows (if the executable name ends with .exe):
+
+```bash
+publish\console.exe <RunConfigFile> <EnvFile>
+```
+
+
+## Run Configuration and Environment Files
+
+The CLI tool requires two files to run:
+	1.	RunConfigFile: A JSON file that defines the run configuration.
+	2.	EnvFile: A file that contains the required environment variables.
+
+Example Run Configuration (`run.json`)
 ```json
 {
   "service": "adf",
@@ -61,43 +77,44 @@ Example Run Configuration (run.json)
 }
 ```
 
-Example Environment File (.env)
+Example Environment File (`.env`)
 
-```env
+```plaintext
 AOAI_APIKEY=your_api_key_here
 AOAI_ENDPOINT=https://your-endpoint.azure.com/
 CHATCOMPLETION_DEPLOYMENTNAME=your_chat_deployment
 EMBEDDING_DEPLOYMENTNAME=your_embedding_deployment
 ```
+## Usage
 
-### Running the Tool
-
-After installing or downloading the executable, run it as follows:
+After setting up your configuration and environment files, you can run the CLI tool as follows:
+	•	Using dotnet run:
 
 ```bash
-# On macOS or Linux:
-fbl ./run.json ../../configuration/.env
-
-# On Windows (if using the .exe version):
-fbl-win-x64.exe ./run.json ..\..\configuration\.env
+dotnet run --project src/console/console.csproj run.json .env
 ```
 
-## GitHub Actions Workflow
+Using a Published Executable:
+For example, after publishing for your platform (e.g., osx-arm64):
 
-This repository includes a GitHub Actions workflow that builds self-contained executables for multiple platforms:
-	•	osx-x64 (macOS Intel)
-	•	osx-arm64 (macOS Apple Silicon)
-	•	win-x64 (Windows)
+```bash
+./publish/console run.json .env
+```
 
-The workflow is defined in .github/workflows/release.yml and uses a matrix strategy to build the binaries. When you push a version tag (e.g., v1.0.0), the workflow automatically publishes the executables as artifacts. You can then download these artifacts or attach them to a GitHub release.
 
-## Help
+The tool also supports a help option. Running the tool without any arguments or with --help or -h will display usage instructions.
 
-Run the tool without any arguments or with --help/-h to display usage instructions.
+## Summary
+- For non-programmers: The easiest way is to use dotnet run as shown above.
+- For those who want a dedicated executable: Use the dotnet publish command with your platform’s runtime identifier.
+- Common Runtime Identifiers:
+  - macOS (Intel): osx-x64
+  - macOS (Apple Silicon): osx-arm64
+  - Windows (x64): win-x64
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
+Contributions are welcome! Feel free to open issues or submit pull requests if you have suggestions or improvements.
 
 ## License
 
