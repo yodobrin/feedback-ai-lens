@@ -1,3 +1,4 @@
+namespace ProductLeaders.console.Models;
 
 public class ServiceMappingConfig
 {

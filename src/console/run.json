@@ -1,0 +1,14 @@
+{
+  "service": "adf",
+  "input_file": "../../sample-data/adf.csv",
+  "data_folder": "../../sample-data/",
+  "output_directory": "results/",
+  "operation": "search",
+  "parameters": {
+    "service_mapping_file": "service_mapping.json",
+    "embedding_dimension": 1536,
+    "similarity_threshold": 0.75,
+    "search_query": "need for improved security measures and streamlined authentication processes across various role",
+    "query_type": "find_customers"
+  }
+}

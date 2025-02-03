@@ -6,6 +6,18 @@ public interface IOpenAIConstants
     const string CombinedSummaryFile = "combined_service_summary.json";
     const string ServiceMappingFile = "service_mapping.json";
 
+    const string CreateClusterSystemMessage = @"Generate a JSON response with the following structure:
+    {
+    ""CommonElement"": ""<A concise phrase describing the common theme>"",
+    ""Summary"": ""<A detailed explanation summarizing the feedback>""
+    }
+    Make sure the common element is clear and concise, and the summary provides a comprehensive explanation.
+    You base your summary only on the provided user stories by the user.";
+    const string Feedback2UserStory =
+        @"You are an AI assistant. You generate clear generic user stories in text only with the following format:
+        'As a [persona], I want to [do something], so that I can [achieve something].'
+        The output should always follow this format without additional styling or formatting.
+        Do not include specific customers/partner names as part of the output.";
     const string CommonUserStorySystemMessage =
         @"
         You are an assistant tasked with 2 actions, based on a list of feedbacks you get from the user.

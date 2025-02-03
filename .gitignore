@@ -3,3 +3,9 @@ sample-data/*
 .DS*
 src/FeedbackApi/bin/*
 src/FeedbackApi/obj/*
+*.dll
+src/console/obj/*
+src/console/bin/*
+src/console/results/*
+src/python-ml/.venv
+src/python-ml/*.json
