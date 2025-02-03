@@ -30,7 +30,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish CLI tool for ${{ matrix.runtime }}
-        run: dotnet publish ./console/console.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -o ./publish/${{ matrix.runtime }}
+        run: dotnet publish src/console/console.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -o ./publish/${{ matrix.runtime }}
 
       - name: Upload artifact for ${{ matrix.runtime }}
         uses: actions/upload-artifact@v4
