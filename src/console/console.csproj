@@ -5,6 +5,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Add these properties to pack as a tool -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>fbl</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
