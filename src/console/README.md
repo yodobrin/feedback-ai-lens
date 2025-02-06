@@ -12,52 +12,33 @@ Before using the CLI tool, ensure that you have the following installed:
 
 You have two simple options to run the tool:
 
-**Option 1**: Run Directly with dotnet run
+Lets focus on running directly with `dotnet run`
 
-If you just want to try the tool without creating a dedicated executable, you can run it directly from the source. From the repository root, open a terminal and execute:
+First, you will need to clone the repository:
 
 ```bash
-dotnet run --project src/console/console.csproj <RunConfigFile> <EnvFile>
+git clone https://github.com/yodobrin/feedback-ai-lens
+```
+
+Then navigate to the console project:
+
+```bash
+cd feedback-ai-lens/src/console
+```
+
+The actual command to run the tool is:
+
+```bash
+dotnet run  <RunConfigFile> <EnvFile>
 ```
 
 Replace <RunConfigFile> with your run configuration JSON file (for example, run.json) and <EnvFile> with your environment file (for example, .env). This command uses the current platform as the target.
 
-**Option 2**: Build a Self-Contained Executable
-
-If you prefer to build a standalone executable for your platform, you can publish the tool with a specific runtime identifier. The default target is the one you’re running on, but here are some common options:
-
-- macOS (Intel): osx-x64
-- macOS (Apple Silicon): osx-arm64
-- Windows (x64): win-x64
-
-To publish for your platform, run a command like:
-
-```bash
-dotnet publish src/console/console.csproj -c Release -r <RID> --self-contained true -o ./publish
-```
-
-Replace <RID> with the runtime identifier for your platform (for example, osx-arm64 on Apple Silicon). The resulting executable will be located in the ./publish folder.
-
-Once built, you can run the executable like this:
-
-On macOS/Linux:
-
-```bash
-./publish/console <RunConfigFile> <EnvFile>
-```
-
-On Windows (if the executable name ends with .exe):
-
-```bash
-publish\console.exe <RunConfigFile> <EnvFile>
-```
-
-
 ## Run Configuration and Environment Files
 
 The CLI tool requires two files to run:
-	1.	RunConfigFile: A JSON file that defines the run configuration.
-	2.	EnvFile: A file that contains the required environment variables.
+	1.	RunConfigFile: A JSON file that defines the run configuration, what is it we aim to run.
+	2.	EnvFile: A file that contains the required environment variables. (OpenAI API Key, Azure Endpoint, etc.)
 
 Example Run Configuration (`run.json`)
 ```json
@@ -85,32 +66,42 @@ AOAI_ENDPOINT=https://your-endpoint.azure.com/
 CHATCOMPLETION_DEPLOYMENTNAME=your_chat_deployment
 EMBEDDING_DEPLOYMENTNAME=your_embedding_deployment
 ```
-## Usage
 
-After setting up your configuration and environment files, you can run the CLI tool as follows:
-	•	Using dotnet run:
+## Generating insight from Feedbacks
 
-```bash
-dotnet run --project src/console/console.csproj run.json .env
+### High Level Overview of the process
+
+- The process start by harvesting feedback data from the specific ADX cluster.
+- Generating user stories and embedding
+- Creating clusters of feedbacks
+
+### Harvesting Feedback Data
+
+The query used is:
+
+```kql
+Feedback
+| where ServiceTree.Name in ('App Service (Web Apps)', 'Azure VMware Solution', 'Azure Kubernetes Service')
+| summarize arg_max(PartnerReceivedDate, *) by Id
+| extend CleanDescription = replace_regex(Description, @"<[^>]*>", '') // Remove HTML tags from Description
+| extend CleanWorkaroundDescription = replace_regex(WorkaroundDescription, @"<[^>]*>", '') // Remove HTML tags from WorkaroundDescription
+| project Id, PartnerShortName, ServiceTree.Name, Type, Title, Blocking, CleanDescription, WorkaroundAvailable, Priority, Customer.Name,Customer.Tpid, CleanWorkaroundDescription
 ```
+> Note: This query is a sample of how to get feedback for App Service (Web Apps), Azure VMware Solution, Azure Kubernetes Service
 
-Using a Published Executable:
-For example, after publishing for your platform (e.g., osx-arm64):
+The output is assume to be a csv file, the file **must** match the projected columns in the query, in the case an alteration is required, the matching .NET class should be updated `CSVFeedbackRecord.cs`.
 
-```bash
-./publish/console run.json .env
-```
+### Running specific operations
 
+Per operation:
+- `summary`   - Generate a summary from the input file.
+- `json`      - Generate user stories from feedback using OpenAI.
+- `cluster`   - Cluster feedback records based on their embeddings.
+- `search`    - Perform a vector search using embeddings. Requires additional parameters:
+  - `search_query`: The query string for searching.
+  - `query_type`: Either 'find_customers' or 'find_use_cases'.
 
-The tool also supports a help option. Running the tool without any arguments or with --help or -h will display usage instructions.
-
-## Summary
-- For non-programmers: The easiest way is to use dotnet run as shown above.
-- For those who want a dedicated executable: Use the dotnet publish command with your platform’s runtime identifier.
-- Common Runtime Identifiers:
-  - macOS (Intel): osx-x64
-  - macOS (Apple Silicon): osx-arm64
-  - Windows (x64): win-x64
+Each of these operations runs independently and can be run separately. There is however dependencies between them, for example, `json` operation must be run before `cluster` and `search` operations.
 
 ## Contributing
 

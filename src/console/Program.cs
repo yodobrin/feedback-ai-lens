@@ -135,7 +135,7 @@ sealed class Program
         Console.WriteLine("              query_type: Either 'find_customers' or 'find_use_cases'.");
         Console.WriteLine();
         Console.WriteLine("Example:");
-        Console.WriteLine("  MyCliApp.exe config.json env.txt");
+        Console.WriteLine("  dotnet run config.json env.txt");
     }
 
     /// <summary>
