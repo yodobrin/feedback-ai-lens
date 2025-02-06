@@ -1,7 +1,4 @@
-﻿// using System.Text.Json;
-// using Azure;
-// using Azure.AI.OpenAI;
-
+﻿
 sealed class Program
 {
     public static async Task Main(string[] args)
@@ -44,25 +41,25 @@ sealed class Program
             Console.WriteLine($"  Data Folder: {runConfig.DataFolder}");
             Console.WriteLine($"  Operation: {runConfig.Operation}");
 
-            // Extract and validate the service mapping file path
-            string serviceMappingFileName = GetParameterValue(runConfig.Parameters, "service_mapping_file") ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(serviceMappingFileName))
-            {
-                Console.WriteLine("Service mapping file not specified in parameters. Exiting.");
-                return;
-            }
-            string serviceMappingPath = Path.IsPathRooted(serviceMappingFileName)
-                ? serviceMappingFileName
-                : Path.Combine(runConfig.OutputDirectory, serviceMappingFileName);
+            // // Extract and validate the service mapping file path
+            // string serviceMappingFileName = GetParameterValue(runConfig.Parameters, "service_mapping_file") ?? string.Empty;
+            // if (string.IsNullOrWhiteSpace(serviceMappingFileName))
+            // {
+            //     Console.WriteLine("Service mapping file not specified in parameters. Exiting.");
+            //     return;
+            // }
+            // string serviceMappingPath = Path.IsPathRooted(serviceMappingFileName)
+            //     ? serviceMappingFileName
+            //     : Path.Combine(runConfig.OutputDirectory, serviceMappingFileName);
 
-            if (!File.Exists(serviceMappingPath))
-            {
-                Console.WriteLine($"Service mapping configuration file not found: {serviceMappingPath}");
-                return;
-            }
-            Console.WriteLine($"Loading ServiceMappingConfig from: {serviceMappingPath}");
-            var serviceMappingConfig = ServiceMappingConfigLoader.Load(serviceMappingPath);
-            Console.WriteLine($"ServiceMappingConfig loaded successfully for service: {runConfig.Service}.");
+            // if (!File.Exists(serviceMappingPath))
+            // {
+            //     Console.WriteLine($"Service mapping configuration file not found: {serviceMappingPath}");
+            //     return;
+            // }
+            // Console.WriteLine($"Loading ServiceMappingConfig from: {serviceMappingPath}");
+            // var serviceMappingConfig = ServiceMappingConfigLoader.Load(serviceMappingPath);
+            // Console.WriteLine($"ServiceMappingConfig loaded successfully for service: {runConfig.Service}.");
 
             // Delegate to the correct operation
             switch (runConfig.Operation.ToLower())

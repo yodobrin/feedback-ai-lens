@@ -20,6 +20,7 @@ First, you will need to clone the repository:
 git clone https://github.com/yodobrin/feedback-ai-lens
 ```
 
+
 Then navigate to the console project:
 
 ```bash
@@ -33,6 +34,8 @@ dotnet run  <RunConfigFile> <EnvFile>
 ```
 
 Replace <RunConfigFile> with your run configuration JSON file (for example, run.json) and <EnvFile> with your environment file (for example, .env). This command uses the current platform as the target.
+
+> Note: The tool will not run without the required files and input files and output folders - obtain/create them before running the tool.
 
 ## Run Configuration and Environment Files
 
@@ -90,6 +93,8 @@ Feedback
 > Note: This query is a sample of how to get feedback for App Service (Web Apps), Azure VMware Solution, Azure Kubernetes Service
 
 The output is assume to be a csv file, the file **must** match the projected columns in the query, in the case an alteration is required, the matching .NET class should be updated `CSVFeedbackRecord.cs`.
+
+> Note: Without a csv file of feedbacks, you cannot use the tool. Reach out to the author for a sample data. You will need to create the folders `sample-data` and place the csv file in it, and `/results` for the output.
 
 ### Running specific operations
 
