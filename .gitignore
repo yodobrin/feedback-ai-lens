@@ -10,3 +10,6 @@ src/console/results/*
 src/python-ml/.venv
 src/python-ml/*.json
 .vscode/*
+src/console/notebooks/*.json
+src/console/notebooks/*.md
+src/console/notebooks/*.pdf
