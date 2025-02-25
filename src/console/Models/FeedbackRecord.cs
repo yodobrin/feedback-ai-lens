@@ -43,5 +43,6 @@ public class FeedbackRecord
     [JsonPropertyName("Embedding")]
     public float[]? Embedding { get; set; } = new float[1536];
 
-
+    [JsonPropertyName("ClassificationLevels")]
+    public List<string> ClassificationLevels { get; set; } = new List<string>();
 }

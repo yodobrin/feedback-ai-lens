@@ -6,6 +6,26 @@ public interface IOpenAIConstants
     const string CombinedSummaryFile = "combined_service_summary.json";
     const string ServiceMappingFile = "service_mapping.json";
 
+    const string UserStoryClassificationSystemMessage = @"Classify the following user story into a single category.
+    Return only the classification label and short reasoning for the class, the classification needs to be generic but not too inclusive, so 'feature enhancement'
+    is not a good classification. the response must match this json element:
+    {
+    ""classification"": ""<the classification label>"",
+    ""reasoning"": ""<a short reasoning for the class>""
+    }
+    User Story:";
+
+    const string CreateClusterByLLMSystemMessage = @"group the following user feedback items into clusters based on common themes.
+    A list of existing classification can be added and can be used to classify the feedback items,
+    in case new classification is required or reword existing classification, you can do that.
+    Return your response as a JSON array. Each element in the array should be an object with the following keys:
+    {
+    ""CommonElement"": ""<the common theme for the group.>"",
+    ""FeedbackIds"": ""<: an array of the IDs (as strings) of the feedback items that belong to that group.>""
+    }
+    Make sure the common element is clear and concise. Feedback items:";
+
+
     const string CreateClusterSystemMessage = @"Generate a JSON response with the following structure:
     {
     ""CommonElement"": ""<A concise phrase describing the common theme>"",

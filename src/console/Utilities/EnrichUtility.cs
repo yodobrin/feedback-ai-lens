@@ -20,6 +20,8 @@ public static class EnrichUtility
 
         if (completions.Choices.Count > 0)
         {
+            // print the response
+            // Console.WriteLine($"Response: {completions.Choices[0].Message.Content}");
             return completions.Choices[0].Message.Content;
         }
         else
@@ -78,7 +80,7 @@ public static async Task<float[]> GetEmbeddingAsync(string textToBeVecorized, Op
 }
 
 // loop over a csv file, create a json file with user story and embedding
-private static ChatCompletionsOptions GetOptions4UserStories(string systemMessage, string prompt, string chatCompletionDeploymentName)
+public static ChatCompletionsOptions GetOptions4UserStories(string systemMessage, string prompt, string chatCompletionDeploymentName)
 {
     // Create ChatCompletionsOptions and set up the system and user messages
     ChatCompletionsOptions options = new ChatCompletionsOptions();
@@ -98,7 +100,32 @@ private static ChatCompletionsOptions GetOptions4UserStories(string systemMessag
     return options;
 }
 
-private static ChatCompletionsOptions GetOptions4Clusters(string prompt, string systemMessage, string chatCompletionDeploymentName)
+// method for options when calling llm for classifications
+
+public static ChatCompletionsOptions GetOptions4Classification(string prompt, string systemMessage, string chatCompletionDeploymentName)
+{
+    ChatCompletionsOptions options = new ChatCompletionsOptions();
+
+    // Add system message
+    options.Messages.Add(new ChatRequestSystemMessage(systemMessage));
+
+    // Add user message (the prompt generated from feedback)
+    options.Messages.Add(new ChatRequestUserMessage(prompt));
+
+    // Configure request properties
+    options.MaxTokens = 150;
+    options.Temperature = 0.7f;
+    options.NucleusSamplingFactor = 0.95f;
+    options.FrequencyPenalty = 0.0f;
+    options.PresencePenalty = 0.0f;
+    // options.StopSequences.Add("\n");
+    options.DeploymentName = chatCompletionDeploymentName;
+
+    options.ResponseFormat = ChatCompletionsResponseFormat.JsonObject;
+    return options;
+}
+
+public static ChatCompletionsOptions GetOptions4Clusters(string prompt, string systemMessage, string chatCompletionDeploymentName)
 {
     ChatCompletionsOptions options = new ChatCompletionsOptions();
 

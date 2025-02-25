@@ -79,7 +79,9 @@ sealed class Program
                 case "search":
                     await ProcessSearchOperation(runConfig, openAIClient, embeddingDeploymentName, chatCompletionDeploymentName);
                     break;
-
+                case "classification":
+                    await ProcessClassificationOperation(runConfig, openAIClient, chatCompletionDeploymentName);
+                    break;
                 default:
                     Console.WriteLine($"Unsupported operation: {runConfig.Operation}");
                     break;
@@ -133,6 +135,23 @@ sealed class Program
         Console.WriteLine();
         Console.WriteLine("Example:");
         Console.WriteLine("  dotnet run config.json env.txt");
+    }
+
+    private static async Task  ProcessClassificationOperation(RunConfig runConfig, OpenAIClient openAIClient, string chatCompletionDeploymentName)
+    {
+        Console.WriteLine("Executing classification generation...");
+        var serviceDataFile = $"{runConfig.Service}.json";
+        var serviceDataPath = Path.Combine(runConfig.OutputDirectory, serviceDataFile);
+        var jsonString = File.ReadAllText(serviceDataPath);
+        var feedbackRecords = JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonString)
+                              ?? throw new InvalidOperationException("No feedback records found");
+// print number of records
+        Console.WriteLine($"Number of records: {feedbackRecords.Count}");
+        var classifications = await ClassificationUtility.ExtractClassificationsForUserStories(feedbackRecords, openAIClient, chatCompletionDeploymentName);
+        string outputFile = $"{runConfig.Service}_classifications.json";
+        var classificationJson = JsonSerializer.Serialize(classifications, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(Path.Combine(runConfig.OutputDirectory, outputFile), classificationJson);
+        Console.WriteLine($"Classifications saved to: {Path.Combine(runConfig.OutputDirectory, outputFile)}");
     }
 
     /// <summary>
@@ -192,14 +211,27 @@ sealed class Program
         );
     }
 
-    private static async Task ProcessClusterOperation(RunConfig runConfig, OpenAIClient openAIClient, string chatCompletionDeploymentName)
-    {
-        string serviceDataFile = $"{runConfig.Service}.json";
-        string serviceDataPath = Path.Combine(runConfig.OutputDirectory, serviceDataFile);
-        string jsonString = File.ReadAllText(serviceDataPath);
-        var feedbackRecords = JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonString)
-                              ?? throw new InvalidOperationException("No feedback records found");
+private static async Task ProcessClusterOperation(RunConfig runConfig, OpenAIClient openAIClient, string chatCompletionDeploymentName)
+{
+    string serviceDataFile = $"{runConfig.Service}.json";
+    string serviceDataPath = Path.Combine(runConfig.OutputDirectory, serviceDataFile);
+    string jsonString = File.ReadAllText(serviceDataPath);
+    var feedbackRecords = JsonSerializer.Deserialize<List<FeedbackRecord>>(jsonString)
+                          ?? throw new InvalidOperationException("No feedback records found");
 
+    List<ServiceCluster> clusters;
+    // Check for the clustering technique parameter.
+    string? clusteringTechnique = GetParameterValue(runConfig.Parameters, "clustering_technique");
+
+    if (!string.IsNullOrWhiteSpace(clusteringTechnique) &&
+        clusteringTechnique.Equals("llm", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine("Executing batched clustering using LLM-based technique.");
+        clusters = await ClusterUtility.GenerateClustersUsingLLMBatched(feedbackRecords, openAIClient, chatCompletionDeploymentName);
+    }
+    else
+    {
+        Console.WriteLine("Executing clustering using KMeans.");
         var rawClusters = ClusterUtility.CreateClusters(feedbackRecords, 50);
         var serviceClusters = ClusterUtility.GenerateClusters(rawClusters);
         var sortedClusters = serviceClusters
@@ -207,12 +239,15 @@ sealed class Program
             .ThenByDescending(cluster => cluster.SimilarFeedbacks)
             .ToList();
 
-        var clusters = await EnrichUtility.EnhanceClustersWithOpenAIAsync(openAIClient, sortedClusters, chatCompletionDeploymentName);
-        string outputFile = $"{runConfig.Service}_clusters_full.json";
-        var clusterJson = JsonSerializer.Serialize(clusters, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(Path.Combine(runConfig.OutputDirectory, outputFile), clusterJson);
-        Console.WriteLine($"Clusters saved to: {Path.Combine(runConfig.OutputDirectory, outputFile)}");
+        // Optionally enhance the clusters with OpenAI.
+        clusters = await EnrichUtility.EnhanceClustersWithOpenAIAsync(openAIClient, sortedClusters, chatCompletionDeploymentName);
     }
+
+    string outputFile = $"{runConfig.Service}_clusters_full.json";
+    var clusterJson = JsonSerializer.Serialize(clusters, new JsonSerializerOptions { WriteIndented = true });
+    File.WriteAllText(Path.Combine(runConfig.OutputDirectory, outputFile), clusterJson);
+    Console.WriteLine($"Clusters saved to: {Path.Combine(runConfig.OutputDirectory, outputFile)}");
+}
 
     private static async Task ProcessSearchOperation(RunConfig runConfig, OpenAIClient openAIClient, string embeddingDeploymentName, string chatCompletionDeploymentName)
     {
