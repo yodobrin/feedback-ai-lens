@@ -13,3 +13,6 @@ src/python-ml/*.json
 src/console/notebooks/*.json
 src/console/notebooks/*.md
 src/console/notebooks/*.pdf
+*.db
+*.vtt
+*.xlsx
