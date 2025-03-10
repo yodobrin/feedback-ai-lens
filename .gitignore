@@ -575,6 +575,10 @@ cython_debug/
 .pypirc
 
 # Project Specific
+*Outputs.json
+input/
+output/
+_archive/
 configuration/.env
 sample-data/*
 .DS*
