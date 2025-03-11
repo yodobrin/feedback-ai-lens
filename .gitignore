@@ -576,8 +576,14 @@ cython_debug/
 
 # Project Specific
 *Outputs.json
-input/
-output/
+
+**/input/**/*.csv
+**/input/**/*.xlsx
+**/input/**/*.json
+**/output/**/*.csv
+**/output/**/*.xlsx
+**/output/**/*.json
+
 _archive/
 configuration/.env
 sample-data/*
